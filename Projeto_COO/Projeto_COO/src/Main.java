@@ -33,7 +33,7 @@ public class Main {
 	public static int findFreeIndex(int [] stateArray){
 		
 		int i;
-		
+
 		for(i = 0; i < stateArray.length; i++){
 			
 			if(stateArray[i] == INACTIVE) break;
@@ -50,18 +50,15 @@ public class Main {
 
 		int i, k;
 		int [] freeArray = new int[amount];
+		for(i = 0; i < freeArray.length; i++) freeArray[i] = stateArray.length;
+		for(i = 0, k = 0; i < stateArray.length && k < amount; i++)
 
-		for(i = 0; i < freeArray.length; i++) freeArray[i] = stateArray.length; 
-		
-		for(i = 0, k = 0; i < stateArray.length && k < amount; i++){
-				
-			if(stateArray[i] == INACTIVE) { 
+			if(stateArray[i] == INACTIVE) {
 				
 				freeArray[k] = i; 
 				k++;
 			}
-		}
-		
+
 		return freeArray;
 	}
 	

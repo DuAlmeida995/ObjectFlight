@@ -1,7 +1,9 @@
 package Mecanicas
 
-public abstract class Entidade implements ObjetoJogo, Movivel, Colidivel {
+public abstract class Entidade implements ObjetoJogo, Movivel {
     protected x, y;
+    protected estado;
+    protected radius;
 
     public Entidade(int x, int y) {
         this.x = x;
@@ -16,9 +18,7 @@ public abstract class Entidade implements ObjetoJogo, Movivel, Colidivel {
     public abstract void draw();
 
     @Override
-    public double getX() {
-        return x;
-    }
+    public double getX() { return x;}
 
     @Override
     public double getY() {
@@ -26,10 +26,7 @@ public abstract class Entidade implements ObjetoJogo, Movivel, Colidivel {
     }
 
     @Override
-    public abstract double getRadius();
-
-    @Override
-    public abstract void onCollision(Colidivel outro);
+    public abstract double getRadius() { return radius;}
 
     @Override
     public abstract void setVelocity(double vx, double vy);

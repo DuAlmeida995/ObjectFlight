@@ -1,13 +1,25 @@
 package Mecanicas
 
 public abstract class Entidade implements ObjetoJogo, Movivel {
-    protected x, y;
-    protected estado;
-    protected radius;
+    protected int x, y;
+    protected int estado;
+    protected double radius;
+    protected long nextShoot;
+    protected long explosaoComeco;
+    protected long explosaoFim;
 
     public Entidade(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+
+    public void setExplosaoComeco(long tempo) {
+        this.explosaoComeco = tempo;
+    }
+
+    public void setExplosaoFim(long tempo) {
+        this.explosaoFim = tempo;
     }
 
     @java.lang.Override
@@ -16,6 +28,12 @@ public abstract class Entidade implements ObjetoJogo, Movivel {
     }
 
     public abstract void draw();
+
+    public int getEstado( return estado);
+
+    public void setEstado(int estado) {
+        if ( estado >= 0 || estado <= 2) this.estado = estado;
+    }
 
     @Override
     public double getX() { return x;}
@@ -27,9 +45,6 @@ public abstract class Entidade implements ObjetoJogo, Movivel {
 
     @Override
     public abstract double getRadius() { return radius;}
-
-    @Override
-    public abstract void setVelocity(double vx, double vy);
 
     @Override
     public abstract void move(long delta);

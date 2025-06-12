@@ -1,21 +1,21 @@
-package Mecanicas
+package MecanicasAdd commentMore actions
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectilePool {
+public class Projetil {
 
-    private List<ProjectileBase> projeteis = new ArrayList<>();
+    private List<Projetil> projeteis = new ArrayList<>();
 
     public void disparar(int x, int y) {
-        projeteis.add(new ProjectileBase(x, y));
+        projeteis.add(new Projetil(x, y));
     }
 
     public void update() {
-        List<ProjectileBase> paraRemover = new ArrayList<>();
+        List<Projetil> paraRemover = new ArrayList<>();
 
-        for (ProjectileBase p : projeteis) {
+        for (Projetil p : projeteis) {
             p.update();
             if (p.isOffScreen()) {
                 paraRemover.add(p);
@@ -26,11 +26,11 @@ public class ProjectilePool {
     }
 
     public void draw(Graphics2D g2d) {
-        for (ProjectileBase p : projeteis) {
+        for (Projetil p : projeteis) {
             p.draw(g2d);
         }
     }
 
-    public List<ProjectileBase> getProjeteis() {
+    public List<Projetil> getProjeteis() {
         return projeteis;
     }

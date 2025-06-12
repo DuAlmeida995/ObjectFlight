@@ -2,6 +2,7 @@ package Mecanicas
 
         public class Inimigo2 extends Entidade implements Atirador {
                 private int contadorTiro = 0;
+                protected long nextShoot;
 
                 public Enemy2(int x, int y) {
                         super(x, y);
@@ -25,8 +26,8 @@ package Mecanicas
                 }
 
                 @Override
-                public void atirar(ProjectilePool pool) {
-                        pool.disparar(x + largura / 2, y + altura);
+                public void atirar(Projetil projeteis) {
+                        projeteis.disparar(x + largura / 2, y + altura);
                 }
         }
         }

@@ -1,8 +1,9 @@
 package Mecanicas
 import java.awt.Graphics2D;
 
-    public class Jogador extends Entidade implements Atirador, Colidivel {
-        private double vx, vy;
+    public class Jogador extends Entidade implements Atirador, Colidivel, Explodivel {
+        private double vx, vy
+        protected long nextShoot;
         public Jogador(int x, int y) {
             super();
             this.radius = 12.0;
@@ -19,8 +20,8 @@ import java.awt.Graphics2D;
         }
 
         @Override
-        public void atirar(ProjectilePool pool) {
-            pool.disparar(x + largura / 2, y);
+        public void atirar(Projetil projetil) {
+            projetil.disparar(x + largura / 2, y);
         }
     }
 

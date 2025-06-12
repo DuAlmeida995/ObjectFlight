@@ -1,36 +1,23 @@
-package MecanicasAdd commentMore actions
+package Mecanicas
 
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Projetil {
-
-    private List<Projetil> projeteis = new ArrayList<>();
-
-    public void disparar(int x, int y) {
-        projeteis.add(new Projetil(x, y));
+public class Projetil extends Entidade {
+    public Projetil(double x, double y, double vx, double vy, double raio) {
+        super(x, y, vx, vy, raio);
     }
 
-    public void update() {
-        List<Projetil> paraRemover = new ArrayList<>();
-
-        for (Projetil p : projeteis) {
-            p.update();
-            if (p.isOffScreen()) {
-                paraRemover.add(p);
-            }
-        }
-
-        projeteis.removeAll(paraRemover);
+    @Override
+    public void mover(long deltaTime) {
+        x += vx * deltaTime;
+        y += vy * deltaTime;
     }
 
-    public void draw(Graphics2D g2d) {
-        for (Projetil p : projeteis) {
-            p.draw(g2d);
-        }
+    public boolean estaForaDaTela() {
+        return (x < 0 || x > GameLib.WIDTH || y < 0 || y > GameLib.HEIGHT);
     }
 
-    public List<Projetil> getProjeteis() {
-        return projeteis;
+    public void desenhar(Graphics2D g) {
+        GameLib.drawCircle(x, y, raio);
     }
+}

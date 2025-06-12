@@ -1,7 +1,6 @@
 package Mecanicas
 
 public interface Atirador {
-    void canShoot(long now);
-    void shoot();
-    void getShootNextTime();
+    void podeAtirar(long now);
+    void atirar();
 }

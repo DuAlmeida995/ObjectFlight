@@ -1,19 +1,27 @@
 package Mecanicas
 
-public abstract class Entidade implements ObjetoJogo, Movivel {
+public abstract class Entidade implements Movivel {
     protected int x, y;
+    protected double vx,vy, radius;
     protected int estado;
-    protected double radius;
-    protected long nextShoot;
-    protected long explosaoComeco;
-    protected long explosaoFim;
+    //protected long nextShoot;
+    //protected long explosaoComeco;
+    //protected long explosaoFim;
 
-    public Entidade(int x, int y) {
+    public static final int INATIVO = 0;
+    public static final int ATIVO = 1;
+    public static final int EXPLODINDO = 2;
+
+    public Entidade(int x, int y, double vx, double vy, double radius) {
         this.x = x;
         this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.radius = radius;
+        this.estado = ATIVO;
     }
 
-
+    public boolean estaAtivo() { this.estado == ATIVO;}
     public void setExplosaoComeco(long tempo) {
         this.explosaoComeco = tempo;
     }
@@ -23,10 +31,7 @@ public abstract class Entidade implements ObjetoJogo, Movivel {
     }
 
     @java.lang.Override
-    public void update(long delta) {
-        System.out.println("Entidade atualizada na posição ( " + x + ", " + y + ")");
-    }
-
+    public void update(long delta);
     public abstract void draw();
 
     public int getEstado( return estado);
@@ -44,7 +49,7 @@ public abstract class Entidade implements ObjetoJogo, Movivel {
     }
 
     @Override
-    public abstract double getRadius() { return radius;}
+    publicdouble getRadius() { return radius;}
 
     @Override
     public abstract void move(long delta);

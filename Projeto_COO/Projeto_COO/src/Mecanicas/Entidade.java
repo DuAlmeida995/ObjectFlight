@@ -1,16 +1,16 @@
 package Mecanicas
 
-public abstract class Entidade implements Movivel {
+public abstract class Entidade implements Movivel, Colidivel {
     protected int x, y;
     protected double vx,vy, radius;
     protected int estado;
-    //protected long nextShoot;
-    //protected long explosaoComeco;
-    //protected long explosaoFim;
+    protected long nextShoot;
+    protected long explosaoComeco;
+    protected long explosaoFim;
 
-    public static final int INATIVO = 0;
-    public static final int ATIVO = 1;
-    public static final int EXPLODINDO = 2;
+    public static final int INACTIVATE = 0;
+    public static final int ACTIVE = 1;
+    public static final int EXPLODING = 2;
 
     public Entidade(int x, int y, double vx, double vy, double radius) {
         this.x = x;
@@ -49,8 +49,17 @@ public abstract class Entidade implements Movivel {
     }
 
     @Override
-    publicdouble getRadius() { return radius;}
+    public double getRadius() { return radius;}
 
     @Override
     public abstract void move(long delta);
+
+    @Override
+    public void onCollision(Colidivel outro) {
+        if (estado == ATIVO) {
+            estado = EXPLODING;
+            setExplosaoComeco(System.currentTimeMillis());
+            setExplosaoFim(System.currentTimeMillis() + 500);
+        }
+    }
 }

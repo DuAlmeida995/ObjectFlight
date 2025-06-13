@@ -2,25 +2,22 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class Estrela {
-    protected double velocidade;;
-    protected double[] estrelas;
-    protected double count;
-    public Estrela (double velocidade, int quantidade ) {
-        this.velocidade = velocidade;
-        estrelas = new double[quantidade]
+    private double x, y;
+    private double velocidadeY;
+
+    public Estrela(double x, double y, double velocidadeY) {
+        this.x = x;
+        this.y = y;
+        this.velocidadeY = velocidadeY;
     }
 
-    @Override
-    public void update() {
-        //mover();
-        if (y > 600) { // Se saiu da tela, reseta
-            y = 0;
-        }
+    public void update(long delta) {
+        y += velocidadeY * delta;
+        if (y > 600) y = 0; // reseta verticalmente
     }
 
-    @Override
     public void draw(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
-        g2d.fillRect(x, y, largura, altura);
+        g2d.fillRect((int) x, (int) y, 2, 2); // estrela pequena
     }
 }

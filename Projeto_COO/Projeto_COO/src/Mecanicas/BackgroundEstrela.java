@@ -1,13 +1,15 @@
+package Mecanicas;
+
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class EstrelaFundo {
+public class BackgroundEstrela {
     private List<Estrela> camada1;
     private List<Estrela> camada2;
 
-    public EstrelaFundo() {
+    public BackgroundEstrela() {
         camada1 = gerarEstrelas(20, 0.070); // primeiro plano
         camada2 = gerarEstrelas(50, 0.045); // segundo plano
     }

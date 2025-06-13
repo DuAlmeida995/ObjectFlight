@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class GameManager {
     private boolean running;
     private long lastTime;
@@ -14,7 +15,11 @@ public class GameManager {
     private List<Entidade> inimigos;
     private ProjetilPool projetilAliado;
     private ProjetilPool projetilInimigo;
-    private EstrelaFundo fundo;
+    private BackgroundEstrela fundo;
+
+    public static final int INACTIVATE = 0;
+    public static final int ACTIVE = 1;
+    public static final int EXPLODING = 2;
 
     public GameManager() {
         this.running         = true;
@@ -23,7 +28,7 @@ public class GameManager {
         this.inimigos        = new ArrayList<>();
         this.projetilAliado  = new ProjetilPool();
         this.projetilInimigo = new ProjetilPool();
-        this.fundo           = new EstrelaFundo();
+        this.fundo           = new BackgroundEstrela();
     }
 
     public void init() {
@@ -57,7 +62,7 @@ public class GameManager {
         player.setVelocity(dx, dy);
 
         if (GameLib.iskeyPressed(GameLib.KEY_CONTROL) && player.canShoot(now)) {
-            player.shoot(now, projetilAliado);
+            player.atirar(now, projetilAliado);
         }
         if (GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) {
             running = false;

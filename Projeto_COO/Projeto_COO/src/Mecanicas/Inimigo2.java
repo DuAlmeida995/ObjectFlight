@@ -3,14 +3,42 @@ package Mecanicas;
 import java.awt.Graphics2D;
 import java.awt.Color;
 
-public class Inimigo2 extends Entidade implements Atirador {
-        private int contadorTiro = 0;
-        private long nextShootTime = 0;
+
+public class Inimigo2 extends Entidade implements Atirador, Movivel {
         private ProjetilPool pool;
+        private int contadorTiro;
+        private long proximoTiro;
+
+        public static final int INACTIVATE = 0;
+        public static final int ACTIVE = 1;
+        public static final int EXPLODING = 2;
 
         public Inimigo2(double x, double y, ProjetilPool pool) {
                 super((int)x, (int)y, 0.0, 1.0, 12.0);
                 this.pool = pool;
+                this.contadorTiro = 0;
+                this.proximoTiro = 0;
+        }
+
+        @Override
+        public void move(long delta) {
+                if (estado == EXPLODING) {
+                        if (System.currentTimeMillis() > explosaoFim) {
+                                estado = INACTIVATE;
+                        }
+                        return;
+                }
+
+                if (estado == ACTIVE) {
+                        // Verifica se saiu da tela
+                        if (y > GameLib.HEIGHT + 10) {
+                                estado = INACTIVATE;
+                                return;
+                        }
+
+                        // Move reto para baixo
+                        y += vy * delta;
+                }
         }
 
         @Override
@@ -26,19 +54,19 @@ public class Inimigo2 extends Entidade implements Atirador {
                 }
 
                 // Movimento normal
-                mover(deltaTime);
+                move(deltaTime);
 
                 // Lógica de tiro
                 contadorTiro++;
-                if (contadorTiro >= 100 && canShoot(now)) {
-                        shoot(now, pool);
+                if (contadorTiro >= 100 && podeAtirar(now)) {
+                        atirar(now, pool);
                         contadorTiro = 0;
                 }
         }
 
         @Override
         public void draw(Graphics2D g2d) {
-                if (estado == EXPLODINDO) {
+                if (estado == EXPLODING) {
                         // Desenha a explosão
                         double alpha = (now() - explosaoComeco) / (double)(explosaoFim - explosaoComeco);
                         GameLib.drawExplosion(x, y, alpha);
@@ -52,7 +80,7 @@ public class Inimigo2 extends Entidade implements Atirador {
 
         @Override
         public void onCollision(Colidivel outro) {
-                if (estado == ACTIVATE) {
+                if (estado == ACTIVE) {
                         estado = EXPLODING;
                         explosaoComeco = now();
                         explosaoFim = explosaoComeco + 500;
@@ -61,14 +89,14 @@ public class Inimigo2 extends Entidade implements Atirador {
 
         @Override
         public boolean podeAtirar(long now) {
-                return now >= nextShootTime;
+                return now >= proximoTiro;
         }
 
         @Override
-        public void shoot(long now, ProjetilPool pool) {
-                if(!podeAtirar(now)) return;
+        public void atirar(long tempoAtual, ProjetilPool pool) {
+                if(!podeAtirar(tempoAtual)) return;
                 pool.disparar(x, y + radius, 0.0, 0.5, 2.0);
-                nextShootTime = now + 500;
+                proximoTiro = tempoAtual + 500;
         }
 
         // utilitário para pegar o tempo atual

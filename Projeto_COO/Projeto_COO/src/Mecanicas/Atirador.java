@@ -1,6 +1,6 @@
-package Mecanicas
+package Mecanicas;
 
 public interface Atirador {
-    void podeAtirar(long now);
-    void atirar();
+    boolean podeAtirar(long now);
+    void atirar(long tempoAtual, ProjetilPool projetil);
 }

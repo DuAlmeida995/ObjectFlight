@@ -1,10 +1,11 @@
-package Mecanicas
+package Mecanicas;
+
+import java.awt.Graphics2D;
 
 public abstract class Entidade implements Movivel, Colidivel {
     protected int x, y;
     protected double vx,vy, radius;
     protected int estado;
-    protected long nextShoot;
     protected long explosaoComeco;
     protected long explosaoFim;
 
@@ -12,16 +13,18 @@ public abstract class Entidade implements Movivel, Colidivel {
     public static final int ACTIVE = 1;
     public static final int EXPLODING = 2;
 
-    public Entidade(int x, int y, double vx, double vy, double radius) {
+    public Entidade(double x, double y, double vx, double vy, double radius) {
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
         this.radius = radius;
-        this.estado = ATIVO;
+        this.estado = ACTIVE;
+        this.explosaoComeco = 0;
+        this.explosaoFim = 0;
     }
 
-    public boolean estaAtivo() { this.estado == ATIVO;}
+    public boolean estaAtivo() {  return this.estado == ACTIVE;}
     public void setExplosaoComeco(long tempo) {
         this.explosaoComeco = tempo;
     }
@@ -30,11 +33,10 @@ public abstract class Entidade implements Movivel, Colidivel {
         this.explosaoFim = tempo;
     }
 
-    @java.lang.Override
-    public void update(long delta);
-    public abstract void draw();
+    public abstract void update(long delta);
+    public abstract void draw(Graphics2D g2d);
 
-    public int getEstado( return estado);
+    public int getEstado(){return this.estado;}
 
     public void setEstado(int estado) {
         if ( estado >= 0 || estado <= 2) this.estado = estado;
@@ -51,12 +53,12 @@ public abstract class Entidade implements Movivel, Colidivel {
     @Override
     public double getRadius() { return radius;}
 
-    @Override
-    public abstract void move(long delta);
+
+  //  public abstract void move(long delta);
 
     @Override
     public void onCollision(Colidivel outro) {
-        if (estado == ATIVO) {
+        if (estado == ACTIVE) {
             estado = EXPLODING;
             setExplosaoComeco(System.currentTimeMillis());
             setExplosaoFim(System.currentTimeMillis() + 500);

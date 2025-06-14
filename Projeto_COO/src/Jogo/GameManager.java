@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import java.awt.Color;
+
 import Mecanicas.background.BackgroundEstrela;
 import Mecanicas.inimigos.Inimigo1;
 import Mecanicas.inimigos.Inimigo2;
@@ -10,6 +12,7 @@ import Mecanicas.interfaces.Entidade;
 import Mecanicas.jogador.Jogador;
 import Mecanicas.projetil.Projetil;
 import Mecanicas.projetil.ProjetilPool;
+
 
 
 public class GameManager {
@@ -26,6 +29,13 @@ public class GameManager {
     public static final int ACTIVE = 1;
     public static final int EXPLODING = 2;
 
+    private long nextSpawnEnemy1;
+    private long nextSpawnEnemy2;
+
+    private static final long ENEMY1_SPAWN_DELAY = 500;   // intervalo em ms
+    private static final long ENEMY2_SPAWN_DELAY = 3000;
+
+
     public GameManager() {
         this.running         = true;
         this.nowTime         = System.currentTimeMillis();
@@ -34,6 +44,9 @@ public class GameManager {
         this.projetilJogador = new ProjetilPool();
         this.projetilInimigo = new ProjetilPool();
         this.fundo           = new BackgroundEstrela();
+        long now = System.currentTimeMillis();
+        this.nextSpawnEnemy1 = now + 2000;   // primeiro surge em 2s
+        this.nextSpawnEnemy2 = now + 7000;   // primeiro surge em 7s
     }
 
     public void init() {
@@ -41,7 +54,9 @@ public class GameManager {
 
         // Exemplo: adicionar inimigos iniciais
         
-        inimigos.add(new Inimigo1(100, -20, 0.2, Math.PI/2, 0.0));
+        //inimigos.add(new Inimigo1(100, -20, 0.2, Math.PI/2, 0.0));
+        inimigos.add(new Inimigo1(100, 0, 0.2, Math.PI/2, 0.0));
+
         inimigos.add(new Inimigo2(200, -20, projetilInimigo));
     }
 
@@ -77,8 +92,28 @@ public class GameManager {
         }
     }
 
+    private void spawnEnemies(long now) {
+        // Tipo 1: circulares, caindo a intervalos curtos
+        if (now > nextSpawnEnemy1) {
+            double x = Math.random() * (GameLib.WIDTH - 18) + 9; // evita borda
+            inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
+            nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
+        }
+
+        // Tipo 2: diamantes, mais espaçados
+        if (now > nextSpawnEnemy2) {
+            double x = Math.random() > 0.5
+                    ? GameLib.WIDTH * 0.2
+                    : GameLib.WIDTH * 0.8;
+            inimigos.add(new Inimigo2(x, -10, projetilInimigo));
+            nextSpawnEnemy2 = now + ENEMY2_SPAWN_DELAY;
+        }
+    }
+
     private void updateAll(long delta) {
-        
+        long now = System.currentTimeMillis();
+        spawnEnemies(now);
+
         fundo.update(delta);
         for (Entidade e : inimigos) e.update(delta);
         projetilJogador.update(delta);
@@ -129,25 +164,26 @@ public class GameManager {
     }
 
     private void renderAll() {
+        GameLib.setColor(Color.BLACK);
+        GameLib.fillRect(0, 0, GameLib.WIDTH, GameLib.HEIGHT);
 
-        /* Fundo de estrelas */
+        // desenha fundo
+        fundo.drawBackground();
+        fundo.drawForeground();
 
-        fundo.draw();
-        fundo.draw();
-
-        /* Jogador */
-
+        // desenha jogador
         jogador.draw();
 
-        /* Inimigos */
+        // desenha inimigos
+        for (Entidade e : inimigos) {
+            e.draw();
+        }
 
-        for (Entidade e : inimigos) e.draw();
-
-        /* Projéteis */
-
+        // desenha projéteis
         projetilJogador.desenharTodos();
         projetilInimigo.desenharTodos();
 
+        // apresenta o frame
         GameLib.display();
     }
 

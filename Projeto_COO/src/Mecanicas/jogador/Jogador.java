@@ -4,12 +4,12 @@ import java.awt.Color;
 
 import Jogo.GameLib;
 
-import Mecanicas.interfaces.Atirador;
+//import Mecanicas.interfaces.Atirador;
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.Entidade;
 import Mecanicas.projetil.ProjetilPool;
 
-    public class Jogador extends Entidade implements Atirador{
+    public class Jogador extends Entidade {
         //private double vx, vy;
         public static final int INACTIVATE = 0;
         public static final int ACTIVE = 1;
@@ -83,7 +83,6 @@ import Mecanicas.projetil.ProjetilPool;
                 explosaoComeco = System.currentTimeMillis();
                 explosaoFim = explosaoComeco + 2000;
             }
-
 
             //@Override
             //public void atirar(Projetil projetil) {

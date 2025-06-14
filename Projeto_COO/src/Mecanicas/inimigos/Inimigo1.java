@@ -10,17 +10,26 @@ import Mecanicas.interfaces.Entidade;
 public class Inimigo1 extends Entidade{
     private double angulo;
     private double rotacaoVelocidade;
+    protected double speed;
 
-    public Inimigo1(double x, double y, double velocidade, double angulo, double rotacaoVelocidade) {
-        super((int)x, (int)y, 0.0, velocidade, 9.0);
-        this.angulo = angulo;
+    public Inimigo1(double x, double y, double speed, double angulo, double rotacaoVelocidade) {
+        super(x, y, 0.0, 0.0, 9.0);    // vx e vy não vão mais armazenar speed
+        this.speed             = speed;
+        this.angulo            = angulo;
         this.rotacaoVelocidade = rotacaoVelocidade;
     }
 
     @Override
     public void move(long delta) {
-        x += Math.cos(angulo) * vy * delta;
-        y += Math.sin(angulo) * vy * delta * (-1);
+        // calcule o deslocamento "dx" e "dy" a partir do módulo e do ângulo
+        double dx = Math.cos(angulo) * speed * delta;
+        double dy = Math.sin(angulo) * speed * delta;
+        // se o eixo Y do seu sistema cresce para baixo, inverta o sinal:
+        // dy = -dy;
+
+        x += dx;
+        y += dy;
+
         angulo += rotacaoVelocidade * delta;
     }
 

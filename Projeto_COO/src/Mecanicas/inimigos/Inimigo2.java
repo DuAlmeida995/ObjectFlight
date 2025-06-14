@@ -4,12 +4,12 @@ import java.awt.Color;
 
 import Jogo.GameLib;
 
-import Mecanicas.interfaces.Atirador;
+//import Mecanicas.interfaces.Atirador;
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.Entidade;
 import Mecanicas.projetil.ProjetilPool;
 
-public class Inimigo2 extends Entidade implements Atirador{
+public class Inimigo2 extends Entidade {
         private ProjetilPool pool;
         private int contadorTiro;
         private long proximoTiro;
@@ -88,12 +88,12 @@ public class Inimigo2 extends Entidade implements Atirador{
                 }
         }
 
-        @Override
+        //@Override
         public boolean podeAtirar(long now) {
                 return now >= proximoTiro;
         }
 
-        @Override
+        //@Override
         public void atirar(long tempoAtual, ProjetilPool pool) {
                 if(!podeAtirar(tempoAtual)) return;
                 pool.disparar(x, y + raio, 0.0, 0.5, 2.0);

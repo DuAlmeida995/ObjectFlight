@@ -74,6 +74,7 @@ public class GameManager {
         
         fundo.update(delta);
         for (EntidadeInimigo e : inimigos) e.update(delta);
+        jogador.update();
         projetilJogador.update(delta);
         projetilInimigo.update(delta);
 

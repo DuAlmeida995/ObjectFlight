@@ -1,6 +1,6 @@
 package Mecanicas.interfaces;
 
-public abstract class Entidade implements Movivel, Colidivel {
+public abstract class Entidade implements Colidivel {
     
     protected double x, y, vx , vy, raio;
     protected int estado;
@@ -10,12 +10,12 @@ public abstract class Entidade implements Movivel, Colidivel {
     public static final int ACTIVE = 1;
     public static final int EXPLODING = 2;
 
-    public Entidade(double x, double y, double vx, double vy, double radius) {
+    public Entidade(double x, double y, double vx, double vy, double raio) {
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
-        this.raio = radius;
+        this.raio = raio;
         this.estado = ACTIVE;
         this.explosaoComeco = 0;
         this.explosaoFim = 0;
@@ -35,33 +35,12 @@ public abstract class Entidade implements Movivel, Colidivel {
 
     public double getRadius() { return raio;}
 
-    public int getEstado() { return estado;}
-
     public void setExplosaoFim(long tempo) { this.explosaoFim = tempo;}
     
+    public void setExplosaoComeco(long tempo) { this.explosaoComeco = tempo;}
+
     public boolean estaAtivo() {  return this.estado == ACTIVE;}
-    
-    public void setExplosaoComeco(long tempo) {
-        this.explosaoComeco = tempo;
-    }
 
-    public abstract void update(long delta);
+    public void setEstado(int estado) { this.estado = estado;}
 
-    public abstract void draw();
-
-
-    public void setEstado(int estado) {
-        if ( estado >= 0 || estado <= 2) this.estado = estado;
-    }
-
-  //  public abstract void move(long delta);
-
-    @Override
-    public void onCollision(Colidivel outro) {
-        if (estado == ACTIVE) {
-            estado = EXPLODING;
-            setExplosaoComeco(System.currentTimeMillis());
-            setExplosaoFim(System.currentTimeMillis() + 500);
-        }
-    }
 }

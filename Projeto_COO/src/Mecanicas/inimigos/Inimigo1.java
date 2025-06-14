@@ -17,14 +17,13 @@ public class Inimigo1 extends Entidade{
         this.rotacaoVelocidade = rotacaoVelocidade;
     }
 
-    @Override
+    
     public void move(long delta) {
         x += Math.cos(angulo) * vy * delta;
         y += Math.sin(angulo) * vy * delta * (-1);
         angulo += rotacaoVelocidade * delta;
     }
 
-    @Override
     public void update(long delta) {
         if (estado == EXPLODING) {
             if (System.currentTimeMillis() > explosaoFim) {
@@ -53,9 +52,7 @@ public class Inimigo1 extends Entidade{
         }
     }
 
-  
-    @Override
-    public void onCollision(Colidivel outro) {
+    public void emColisao(Colidivel outro) {
         if (estado == ACTIVE) {
             estado = EXPLODING;
             explosaoComeco = System.currentTimeMillis();

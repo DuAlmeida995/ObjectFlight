@@ -4,12 +4,11 @@ import java.awt.Color;
 
 import Jogo.GameLib;
 
-import Mecanicas.interfaces.Atirador;
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.Entidade;
 import Mecanicas.projetil.ProjetilPool;
 
-public class Inimigo2 extends Entidade implements Atirador{
+public class Inimigo2 extends Entidade{
         private ProjetilPool pool;
         private int contadorTiro;
         private long proximoTiro;
@@ -21,7 +20,6 @@ public class Inimigo2 extends Entidade implements Atirador{
                 this.proximoTiro = 0;
         }
 
-        @Override
         public void move(long delta) {
                 if (estado == EXPLODING) {
                         if (System.currentTimeMillis() > explosaoFim) {
@@ -42,7 +40,6 @@ public class Inimigo2 extends Entidade implements Atirador{
                 }
         }
 
-        @Override
         public void update(long deltaTime) {
                 long now = System.currentTimeMillis();
 
@@ -77,10 +74,7 @@ public class Inimigo2 extends Entidade implements Atirador{
                 }
         }
 
-
-
-        @Override
-        public void onCollision(Colidivel outro) {
+        public void emColisao(Colidivel outro) {
                 if (estado == ACTIVE) {
                         estado = EXPLODING;
                         explosaoComeco = now();
@@ -88,12 +82,10 @@ public class Inimigo2 extends Entidade implements Atirador{
                 }
         }
 
-        @Override
         public boolean podeAtirar(long now) {
                 return now >= proximoTiro;
         }
 
-        @Override
         public void atirar(long tempoAtual, ProjetilPool pool) {
                 if(!podeAtirar(tempoAtual)) return;
                 pool.disparar(x, y + raio, 0.0, 0.5, 2.0);

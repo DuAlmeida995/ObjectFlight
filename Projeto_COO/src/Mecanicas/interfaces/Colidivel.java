@@ -6,7 +6,7 @@ public interface Colidivel {
 
     double getRadius();
 
-    void onCollision(Colidivel outro);
+    void emColisao(Colidivel outro);
 
     /**
      * Aqui está a lógica de colisão circular:

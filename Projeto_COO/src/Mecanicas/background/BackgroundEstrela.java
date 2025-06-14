@@ -1,0 +1,39 @@
+package Mecanicas.background;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class BackgroundEstrela {
+    private List<Estrela> camada1;
+    private List<Estrela> camada2;
+
+    public BackgroundEstrela() {
+        camada1 = gerarEstrelas(20, 0.070); // primeiro plano
+        camada2 = gerarEstrelas(50, 0.045); // segundo plano
+    }
+
+    private List<Estrela> gerarEstrelas(int quantidade, double velocidadeY) {
+        List<Estrela> estrelas = new ArrayList<>();
+        Random rand = new Random();
+
+        for (int i = 0; i < quantidade; i++) {
+            double x = rand.nextInt(800); // largura da tela
+            double y = rand.nextInt(600); // altura da tela
+            estrelas.add(new Estrela(x, y, velocidadeY));
+        }
+
+        return estrelas;
+    }
+
+    public void update(long delta) {
+        for (Estrela e : camada1) e.update(delta);
+        for (Estrela e : camada2) e.update(delta);
+    }
+
+    public void draw() {
+        for (Estrela e : camada2) e.draw(); // segundo plano primeiro
+        for (Estrela e : camada1) e.draw(); // primeiro plano depois
+    }
+}

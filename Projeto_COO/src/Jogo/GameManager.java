@@ -2,7 +2,7 @@ package Jogo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
 import Mecanicas.interfaces.Entidade;
 import Mecanicas.interfaces.EntidadeInimigo;
@@ -123,25 +123,26 @@ public class GameManager {
     }
 
     private void renderAll() {
+        GameLib.setColor(Color.BLACK);
+        GameLib.fillRect(0, 0, GameLib.WIDTH, GameLib.HEIGHT);
 
-        /* Fundo de estrelas */
+        // desenha fundo
+        fundo.drawBackground();
+        fundo.drawForeground();
 
-        fundo.draw();
-        fundo.draw();
-
-        /* Jogador */
-
+        // desenha jogador
         jogador.draw();
 
-        /* Inimigos */
+        // desenha inimigos
+        for (EntidadeInimigo e : inimigos) {
+            e.draw();
+        }
 
-        for (EntidadeInimigo e : inimigos) e.draw();
-
-        /* Projéteis */
-
+        // desenha projéteis
         projetilJogador.desenharTodos();
         projetilInimigo.desenharTodos();
 
+        // apresenta o frame
         GameLib.display();
     }
 

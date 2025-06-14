@@ -6,9 +6,10 @@ import Jogo.GameLib;
 
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.Entidade;
+import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.projetil.ProjetilPool;
 
-public class Inimigo2 extends Entidade{
+public class Inimigo2 extends EntidadeInimigo {
         private ProjetilPool pool;
         private int contadorTiro;
         private long proximoTiro;

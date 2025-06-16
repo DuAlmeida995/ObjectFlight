@@ -4,23 +4,29 @@ import java.awt.Color;
 
 import Jogo.GameLib;
 
-public class Estrela {
-    private double x, y;
-    private double velocidadeY;
+public class Estrela {  
 
-    public Estrela(double x, double y, double velocidadeY) {
+    /* Declara os atributos das estrelas:
+     * (double) posição xy e velocidade no eixo y.
+     */
+    private double x, y, vy;
+
+    /* Construtor da classe Estrela */
+    public Estrela(double x, double y, double vy) {
         this.x = x;
         this.y = y;
-        this.velocidadeY = velocidadeY;
+        this.vy= vy;
     }
 
+    /* Função que atualiza a posição da estrela ao longo do tempo - somento no sentido vertical. */
     public void update(long delta) {
-        y += velocidadeY * delta;
-        if (y > 600) y = 0; // reseta verticalmente
+        this.y += this.vy * delta;
+        if (this.y > 600) this.y = 0; 
     }
 
+    /* Função que desenha a estrela na janela do jogo. */
     public void draw() {
         GameLib.setColor(Color.WHITE);
-        GameLib.fillRect((int) x, (int) y, 2, 2); // estrela pequena
+        GameLib.fillRect((int) x, (int) y, 2, 2);
     }
 }

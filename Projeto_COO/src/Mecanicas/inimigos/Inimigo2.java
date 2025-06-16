@@ -4,8 +4,7 @@ import java.awt.Color;
 
 import Jogo.GameLib;
 
-import Mecanicas.interfaces.Colidivel;
-import Mecanicas.interfaces.EntidadeInimigo;
+import Mecanicas.abstratas.EntidadeInimigo;
 import Mecanicas.projetil.ProjetilPool;
 
 public class Inimigo2 extends EntidadeInimigo {
@@ -14,7 +13,7 @@ public class Inimigo2 extends EntidadeInimigo {
         private long proximoTiro;
 
         public Inimigo2(double x, double y, ProjetilPool pool) {
-                super((int)x, (int)y, 0.0, 1.0, 12.0);
+                super(x, y, 0.0, 1.0, 12.0);
                 this.pool = pool;
                 this.contadorTiro = 0;
                 this.proximoTiro = 0;
@@ -22,7 +21,7 @@ public class Inimigo2 extends EntidadeInimigo {
 
         public void move(long delta) {
                 if (estado == EXPLODING) {
-                        if (System.currentTimeMillis() > explosaoFim) {
+                        if (now > explosaoFim) {
                                 estado = INACTIVATE;
                         }
                         return;
@@ -41,8 +40,6 @@ public class Inimigo2 extends EntidadeInimigo {
         }
 
         public void update(long deltaTime) {
-                long now = System.currentTimeMillis();
-
                 // Se estiver explodindo, aguarda fim e depois inativa
                 if (estado == EXPLODING) {
                         if (now > explosaoFim) {
@@ -65,20 +62,12 @@ public class Inimigo2 extends EntidadeInimigo {
         public void draw() {
                 if (estado == EXPLODING) {
                         // Desenha a explosão
-                        double alpha = (now() - explosaoComeco) / (double)(explosaoFim - explosaoComeco);
+                        double alpha = (now - explosaoComeco) / (double)(explosaoFim - explosaoComeco);
                         GameLib.drawExplosion(x, y, alpha);
                 } else {
-                        // Desenha o inimigo quadrado
+                        // Desenha o inimigo diamante
                         GameLib.setColor(Color.MAGENTA);
                         GameLib.drawDiamond(x, y, raio);
-                }
-        }
-
-        public void emColisao(Colidivel outro) {
-                if (estado == ACTIVE) {
-                        estado = EXPLODING;
-                        explosaoComeco = now();
-                        explosaoFim = explosaoComeco + 500;
                 }
         }
 
@@ -92,8 +81,4 @@ public class Inimigo2 extends EntidadeInimigo {
                 proximoTiro = tempoAtual + 500;
         }
 
-        // utilitário para pegar o tempo atual
-        private long now() {
-                return System.currentTimeMillis();
-        }
 }

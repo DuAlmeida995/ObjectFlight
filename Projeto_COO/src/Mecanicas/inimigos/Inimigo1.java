@@ -5,7 +5,7 @@ import java.awt.Color;
 import Jogo.GameLib;
 
 import Mecanicas.interfaces.Colidivel;
-import Mecanicas.interfaces.EntidadeInimigo;
+import Mecanicas.abstratas.EntidadeInimigo;
 
 public class Inimigo1 extends EntidadeInimigo {
     private double angulo;
@@ -28,10 +28,8 @@ public class Inimigo1 extends EntidadeInimigo {
         double dy = Math.sin(angulo) * speed * delta;
         // se o eixo Y do seu sistema cresce para baixo, inverta o sinal:
         // dy = -dy;
-
         x += dx;
         y += dy;
-
         angulo += rotacaoVelocidade * delta;
     }
 

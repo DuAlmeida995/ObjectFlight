@@ -4,8 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
-import Mecanicas.interfaces.Entidade;
-import Mecanicas.interfaces.EntidadeInimigo;
+import Mecanicas.abstratas.*;
 import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
@@ -76,15 +75,15 @@ public class GameManager {
     private void detectCollisions() {
         /* Jogador x Inimigos */
         if (jogador.estaAtivo()) {
-            for (Entidade e : inimigos) {
-                if (jogador.collidesWith(e)) {
+            for (EntidadeInimigo e : inimigos) {
+                if (jogador.colideCom(e)) {
                     jogador.emColisao(e);
                     e.emColisao(jogador);
                 }
             }
             /* Jogador x Projéteis inimigos */
             for (Projetil p : projetilInimigo.getProjeteis()) {
-                if (jogador.collidesWith(p)) {
+                if (jogador.colideCom(p)) {
                     jogador.emColisao(p);
                     p.emColisao(jogador);
                 }
@@ -93,8 +92,8 @@ public class GameManager {
         /* Projéteis do jogador x inimigos */
         for (Projetil p : projetilJogador.getProjeteis()) {
             if (!p.estaAtivo()) continue;
-            for (Entidade e : inimigos) {
-                if (p.collidesWith(e)) {
+            for (EntidadeInimigo e : inimigos) {
+                if (p.colideCom(e)) {
                     e.emColisao(p);
                     p.emColisao(e);
                 }
@@ -155,10 +154,10 @@ public class GameManager {
 
     private void handleInput(long delta) {
         if(jogador.estaAtivo()){
-            if(GameLib.iskeyPressed(GameLib.KEY_UP)) jogador.setY(jogador.getY() - delta * jogador.getSpeedY());
-		    if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) jogador.setY(jogador.getY() + delta * jogador.getSpeedY());
-		    if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) jogador.setX(jogador.getX() - delta * jogador.getSpeedX());
-		    if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) jogador.setX(jogador.getX() + delta  * jogador.getSpeedX());
+            if(GameLib.iskeyPressed(GameLib.KEY_UP)) jogador.setY(jogador.getY() - delta * jogador.getVY());
+		    if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) jogador.setY(jogador.getY() + delta * jogador.getVY());
+		    if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) jogador.setX(jogador.getX() - delta * jogador.getVX());
+		    if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) jogador.setX(jogador.getX() + delta  * jogador.getVX());
             if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
                 jogador.atirar(nowTime, projetilJogador);
             }

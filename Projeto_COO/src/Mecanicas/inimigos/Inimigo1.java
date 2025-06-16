@@ -5,7 +5,6 @@ import java.awt.Color;
 import Jogo.GameLib;
 
 import Mecanicas.interfaces.Colidivel;
-import Mecanicas.interfaces.Entidade;
 import Mecanicas.interfaces.EntidadeInimigo;
 
 public class Inimigo1 extends EntidadeInimigo {

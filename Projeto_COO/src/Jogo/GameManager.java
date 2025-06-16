@@ -27,11 +27,6 @@ public class GameManager {
     private static final long ENEMY1_SPAWN_DELAY = 500;   // intervalo em ms
     private static final long ENEMY2_SPAWN_DELAY = 3000;
 
-
-    public static final int INACTIVATE = 0;
-    public static final int ACTIVE = 1;
-    public static final int EXPLODING = 2;
-
     public GameManager() {
         this.running         = true;
         this.nowTime         = System.currentTimeMillis();
@@ -47,28 +42,118 @@ public class GameManager {
     public void init() {
         GameLib.initGraphics();
         inimigos.add(new Inimigo1(100, 0, 0.2, Math.PI/2, 0.0));
-
         inimigos.add(new Inimigo2(200, -20, projetilInimigo));
     }
+
+    /*                                                  
+     * Loop do jogo que realiza quatro principais funções:
+     * (1) detecta colisões do jogador com inimigos, do jogador com os projéteis do inimigo;
+     * (2) atualiza o estado dos elementos na tela ao passo que o tempo passa;
+     * (3) captura e calcula, conforme a entrada do usuário pelo teclado, mudanças no estado
+     * do jogador;
+     * (4) desenha a cena apartir do momento atual. 
+     * (5) espera um intervalo de tempo.                                                   
+     */
 
     public void loop() {
         while (running) {
 
             long delta = System.currentTimeMillis() - nowTime;      
-
             nowTime = System.currentTimeMillis();
 
-            handleInput(delta);
-            updateAll(delta);
             detectCollisions();
+            updateAll(delta);
+            handleInput(delta);
             renderAll();
             busyWait(nowTime + 3);
         }
+
         System.exit(0);
     }
 
-    private void handleInput(long delta) {
+    /* (1) Função que detecta possíveis colisões das Entidades colidíveis no jogo. */
 
+    private void detectCollisions() {
+        /* Jogador x Inimigos */
+        if (jogador.estaAtivo()) {
+            for (Entidade e : inimigos) {
+                if (jogador.collidesWith(e)) {
+                    jogador.emColisao(e);
+                    e.emColisao(jogador);
+                }
+            }
+            /* Jogador x Projéteis inimigos */
+            for (Projetil p : projetilInimigo.getProjeteis()) {
+                if (jogador.collidesWith(p)) {
+                    jogador.emColisao(p);
+                    p.emColisao(jogador);
+                }
+            }
+        }
+        /* Projéteis do jogador x inimigos */
+        for (Projetil p : projetilJogador.getProjeteis()) {
+            if (!p.estaAtivo()) continue;
+            for (Entidade e : inimigos) {
+                if (p.collidesWith(e)) {
+                    e.emColisao(p);
+                    p.emColisao(e);
+                }
+            }
+        }
+    }
+
+    /* Função auxiliar utilizada na função uptadeAll() que calcula o momento em que os inimigos
+     * devem nascer no jogo.
+     */
+
+    private void spawnEnemies(long now) {
+        /* Tipo 1: circulares, caindo a intervalos curtos */
+        if (now > nextSpawnEnemy1) {
+            double x = Math.random() * (GameLib.WIDTH - 18) + 9; // evita borda
+            inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
+            nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
+        }
+        /* Tipo 2: diamantes, mais espaçados */
+        if (now > nextSpawnEnemy2) {
+            double x = Math.random() > 0.5
+                    ? GameLib.WIDTH * 0.2
+                    : GameLib.WIDTH * 0.8;
+            inimigos.add(new Inimigo2(x, -10, projetilInimigo));
+            nextSpawnEnemy2 = now + ENEMY2_SPAWN_DELAY;
+        }
+    }
+
+    /* (2) Função que realiza a atualização dos estados das Entidades do jogo, como a posição do 
+     * elemento na tela.
+     */
+
+    private void updateAll(long delta) {
+        /* Calcula o tempo presente. */
+        long now = System.currentTimeMillis();
+        /* Verifica se inimigos devem nascer. */
+        spawnEnemies(now);
+        /* Atualiza o fundo. */
+        fundo.update(delta);
+        /* Atualiza os inimigos. */
+        for (EntidadeInimigo e : inimigos) e.update(delta);
+        /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
+        jogador.update(now);
+        /* Atualiza os projéteis disparados. */
+        projetilJogador.update(delta);
+        projetilInimigo.update(delta);
+        /* Remover inimigos inativos */
+        Iterator<EntidadeInimigo> it = inimigos.iterator();
+        while (it.hasNext()) {
+            Entidade e = it.next();
+            if (!e.estaAtivo()) it.remove();
+        }
+    }
+
+    /* (3) Função que realiza a captura dos comados inseridos no teclado pelo usuário, atualizando assim
+     * a posição do jogador e os tiros na tela e, possivelmente, realizando o fechamento do jogo.
+     */
+
+    private void handleInput(long delta) {
         if(jogador.estaAtivo()){
             if(GameLib.iskeyPressed(GameLib.KEY_UP)) jogador.setY(jogador.getY() - delta * jogador.getSpeedY());
 		    if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) jogador.setY(jogador.getY() + delta * jogador.getSpeedY());
@@ -83,101 +168,25 @@ public class GameManager {
         }
     }
 
-    private void spawnEnemies(long now) {
-        // Tipo 1: circulares, caindo a intervalos curtos
-        if (now > nextSpawnEnemy1) {
-            double x = Math.random() * (GameLib.WIDTH - 18) + 9; // evita borda
-            inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
-            nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
-        }
-
-        // Tipo 2: diamantes, mais espaçados
-        if (now > nextSpawnEnemy2) {
-            double x = Math.random() > 0.5
-                    ? GameLib.WIDTH * 0.2
-                    : GameLib.WIDTH * 0.8;
-            inimigos.add(new Inimigo2(x, -10, projetilInimigo));
-            nextSpawnEnemy2 = now + ENEMY2_SPAWN_DELAY;
-        }
-    }
-
-    private void updateAll(long delta) {
-        long now = System.currentTimeMillis();
-        spawnEnemies(now);
-        fundo.update(delta);
-        for (EntidadeInimigo e : inimigos) e.update(delta);
-        jogador.update();
-        projetilJogador.update(delta);
-        projetilInimigo.update(delta);
-
-        /* Remover inimigos inativos */
-
-        Iterator<EntidadeInimigo> it = inimigos.iterator();
-        while (it.hasNext()) {
-            Entidade e = it.next();
-            if (!e.estaAtivo()) it.remove();
-        }
-    }
-
-
-
-
-    private void detectCollisions() {
-
-        /* Jogador x Inimigos */
-
-        if (jogador.estaAtivo()) {
-            for (Entidade e : inimigos) {
-                if (jogador.collidesWith(e)) {
-                    jogador.emColisao(e);
-                    e.emColisao(jogador);
-                }
-            }
-
-            /* Jogador x Projéteis inimigos */
-
-            for (Projetil p : projetilInimigo.getProjeteis()) {
-                if (jogador.collidesWith(p)) {
-                    jogador.emColisao(p);
-                    p.emColisao(jogador);
-                }
-            }
-        }
-
-        /* Projéteis do jogador x inimigos */
-
-        for (Projetil p : projetilJogador.getProjeteis()) {
-            if (!p.estaAtivo()) continue;
-            for (Entidade e : inimigos) {
-                if (p.collidesWith(e)) {
-                    e.emColisao(p);
-                    p.emColisao(e);
-                }
-            }
-        }
-    }
+    /* (4) Função que desenha os elementos na tela conforme o estado atual do jogo. */
 
     private void renderAll() {
+        /* Seta a cor de fundo padrão e o tamanho da janela. */
         GameLib.setColor(Color.BLACK);
         GameLib.fillRect(0, 0, GameLib.WIDTH, GameLib.HEIGHT);
-
-        // desenha fundo
+        /* Desenha o fundo do jogo. */
         fundo.drawBackground();
         fundo.drawForeground();
-
-        // desenha jogador
+        /* Desenha o jogador. */
         jogador.draw();
-
-        // desenha inimigos
+        /* Desenha os inimigos. */
         for (EntidadeInimigo e : inimigos) {
             e.draw();
         }
-
-        // desenha projéteis
+        /* Desenha os projéteis. */
         projetilJogador.desenharTodos();
         projetilInimigo.desenharTodos();
-
-        // apresenta o frame
+        /* Apresenta o frame. */
         GameLib.display();
     }
 

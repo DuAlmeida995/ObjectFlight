@@ -58,8 +58,14 @@ import Mecanicas.projetil.ProjetilPool;
             }
 
         }
+        public void update(long tempoAtual){
+            
+            if(estado == EXPLODING){
+                if(tempoAtual > explosaoFim){
+                    estado = ACTIVE;
+                }
+            }
 
-        public void update(){
             if(x < 0.0) x = 0;
 			if(x >= GameLib.WIDTH) x = GameLib.WIDTH - 1;
 			if(y < 25.0) y = 25.0;

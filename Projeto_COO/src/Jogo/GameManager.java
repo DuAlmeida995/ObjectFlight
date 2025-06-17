@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
-import Mecanicas.abstratas.*;
+import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
@@ -15,7 +15,7 @@ public class GameManager {
     private long nowTime;
 
     private Jogador jogador;
-    private List<EntidadeInimigo> inimigos;
+    private List<EntidadeInimigoBase> inimigos;
     private ProjetilPool projetilJogador;
     private ProjetilPool projetilInimigo;
     private BackgroundEstrela fundo;
@@ -31,7 +31,6 @@ public class GameManager {
         this.nowTime         = System.currentTimeMillis();
         this.jogador         = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9));
         this.inimigos        = new ArrayList<>();
-        this.projetilJogador = new ProjetilPool();
         this.projetilInimigo = new ProjetilPool();
         this.fundo           = new BackgroundEstrela();
         this.nextSpawnEnemy1 = nowTime + 2000;
@@ -40,8 +39,6 @@ public class GameManager {
 
     public void init() {
         GameLib.initGraphics();
-        inimigos.add(new Inimigo1(100, 0, 0.2, Math.PI/2, 0.0));
-        inimigos.add(new Inimigo2(200, -20, projetilInimigo));
     }
 
     /*                                                  
@@ -61,7 +58,7 @@ public class GameManager {
             nowTime = System.currentTimeMillis();
 
             detectCollisions();
-            updateAll(delta);
+            updateAll(delta,nowTime);
             handleInput(delta);
             renderAll();
             busyWait(nowTime + 3);
@@ -75,27 +72,24 @@ public class GameManager {
     private void detectCollisions() {
         /* Jogador x Inimigos */
         if (jogador.estaAtivo()) {
-            for (EntidadeInimigo e : inimigos) {
+            for (EntidadeInimigoBase e : inimigos) {
                 if (jogador.colideCom(e)) {
-                    jogador.emColisao(e);
-                    e.emColisao(jogador);
+                    jogador.emColisao();
                 }
             }
             /* Jogador x Projéteis inimigos */
             for (Projetil p : projetilInimigo.getProjeteis()) {
                 if (jogador.colideCom(p)) {
-                    jogador.emColisao(p);
-                    p.emColisao(jogador);
+                    jogador.emColisao();
                 }
             }
         }
         /* Projéteis do jogador x inimigos */
-        for (Projetil p : projetilJogador.getProjeteis()) {
+        for (Projetil p : jogador.getProjetilPool()) {
             if (!p.estaAtivo()) continue;
-            for (EntidadeInimigo e : inimigos) {
+            for (EntidadeInimigoBase e : inimigos) {
                 if (p.colideCom(e)) {
-                    e.emColisao(p);
-                    p.emColisao(e);
+                    e.emColisao();
                 }
             }
         }
@@ -109,7 +103,7 @@ public class GameManager {
         /* Tipo 1: circulares, caindo a intervalos curtos */
         if (now > nextSpawnEnemy1) {
             double x = Math.random() * (GameLib.WIDTH - 18) + 9; // evita borda
-            inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
+            //inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
             nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
         }
         /* Tipo 2: diamantes, mais espaçados */
@@ -117,7 +111,7 @@ public class GameManager {
             double x = Math.random() > 0.5
                     ? GameLib.WIDTH * 0.2
                     : GameLib.WIDTH * 0.8;
-            inimigos.add(new Inimigo2(x, -10, projetilInimigo));
+            //inimigos.add(new Inimigo2(x, -10, projetilInimigo));
             nextSpawnEnemy2 = now + ENEMY2_SPAWN_DELAY;
         }
     }
@@ -126,24 +120,23 @@ public class GameManager {
      * elemento na tela.
      */
 
-    private void updateAll(long delta) {
-        /* Calcula o tempo presente. */
-        long now = System.currentTimeMillis();
+    private void updateAll(long delta, long nowTime) {
         /* Verifica se inimigos devem nascer. */
-        spawnEnemies(now);
+        spawnEnemies(nowTime);
         /* Atualiza o fundo. */
         fundo.update(delta);
         /* Atualiza os inimigos. */
-        for (EntidadeInimigo e : inimigos) e.update(delta);
+        for (EntidadeInimigoBase e : inimigos) //e.update(delta);
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
-        jogador.update(now);
+        jogador.update(nowTime);
+        jogador.updateProjeteis(delta);
         /* Atualiza os projéteis disparados. */
-        projetilJogador.update(delta);
+        //projetilJogador.update(delta);
         projetilInimigo.update(delta);
         /* Remover inimigos inativos */
-        Iterator<EntidadeInimigo> it = inimigos.iterator();
+        Iterator<EntidadeInimigoBase> it = inimigos.iterator();
         while (it.hasNext()) {
-            Entidade e = it.next();
+            EntidadeInimigoBase e = it.next();
             if (!e.estaAtivo()) it.remove();
         }
     }
@@ -159,7 +152,7 @@ public class GameManager {
 		    if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) jogador.setX(jogador.getX() - delta * jogador.getVX());
 		    if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) jogador.setX(jogador.getX() + delta  * jogador.getVX());
             if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
-                jogador.atirar(nowTime, projetilJogador);
+                jogador.atirar(nowTime);
             }
             if (GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) {
             running = false;
@@ -179,12 +172,12 @@ public class GameManager {
         /* Desenha o jogador. */
         jogador.draw();
         /* Desenha os inimigos. */
-        for (EntidadeInimigo e : inimigos) {
-            e.draw();
+        for (EntidadeInimigoBase e : inimigos) {
+            //e.draw();
         }
         /* Desenha os projéteis. */
-        projetilJogador.desenharTodos();
-        projetilInimigo.desenharTodos();
+        //projetilJogador.desenharTodos();
+        //projetilInimigo.desenharTodos();
         /* Apresenta o frame. */
         GameLib.display();
     }

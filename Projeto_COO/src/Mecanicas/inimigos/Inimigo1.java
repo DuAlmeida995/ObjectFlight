@@ -3,40 +3,41 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
-
+import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.interfaces.Colidivel;
-import Mecanicas.abstratas.EntidadeInimigo;
+import Mecanicas.projetil.ProjetilPool;
 
-public class Inimigo1 extends EntidadeInimigo {
-    private double angulo;
-    private double rotacaoVelocidade;
-    protected double speed;
+import static Mecanicas.constantes.Estados.*;
 
-    public Inimigo1(double x, double y, double speed, double angulo, double rotacaoVelocidade) {
-        super(x, y, 0.0, 0.0, 9.0);
-        this.angulo = angulo;
-        this.rotacaoVelocidade = rotacaoVelocidade;
-        this.speed = speed;
+public class Inimigo1{
+    
+    EntidadeInimigoBase entIni_base;
+    ProjetilPool pool;
+
+    public Inimigo1(double x, double y, double v, double angulo, double raio, double vr, ProjetilPool pool) {
+        entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr);
+        this.pool = pool;
+
     }
 
 
     public void move(long delta) {
-        x += Math.cos(angulo) * vy * delta;
-        y += Math.sin(angulo) * vy * delta * (-1);
+        entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta);
+        entIni_base.setY(entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1));
         // calcule o deslocamento "dx" e "dy" a partir do módulo e do ângulo
-        double dx = Math.cos(angulo) * speed * delta;
-        double dy = Math.sin(angulo) * speed * delta;
+        double dx = Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta;
+        double dy = Math.sin(entIni_base.getAngulo()) * entIni_base.getY() * delta;
         // se o eixo Y do seu sistema cresce para baixo, inverta o sinal:
         // dy = -dy;
-        x += dx;
-        y += dy;
-        angulo += rotacaoVelocidade * delta;
+        entIni_base.setX(entIni_base.getX() + dx);
+        entIni_base.setY(entIni_base.getY() + dy);
+        entIni_base.setAngulo(entIni_base.getAngulo() + entIni_base.getVR() * delta);
     }
 
     public void update(long delta) {
-        if (estado == EXPLODING) {
-            if (System.currentTimeMillis() > explosaoFim) {
-                estado = INACTIVATE;
+        if (entIni_base.getEstado() == EXPLODING) {
+            if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
+                entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
@@ -45,27 +46,29 @@ public class Inimigo1 extends EntidadeInimigo {
         move(delta);
 
         // Se desejar, aqui você pode checar saída de tela:
-        if (y > GameLib.HEIGHT + raio) {
-            estado = INACTIVATE;
+        if (entIni_base.getY() > GameLib.HEIGHT + entIni_base.getRaio()) {
+            entIni_base.setEstado(INACTIVATE);
         }
     }
 
     public void draw() {
-        if (estado == EXPLODING) {
-            double progress = (System.currentTimeMillis() - explosaoComeco)
-                    / (double)(explosaoFim - explosaoComeco);
-            GameLib.drawExplosion(x, y, progress);
+        if (entIni_base.getEstado() == EXPLODING) {
+            double progress = (System.currentTimeMillis() - entIni_base.getexplosaoComeco())
+                    / (double)(entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());
+            GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), progress);
         } else {
             GameLib.setColor(Color.CYAN);
-            GameLib.drawCircle(x, y, (float)raio);
+            GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), (float)entIni_base.getRaio());
         }
     }
 
-    public void emColisao(Colidivel outro) {
-        if (estado == ACTIVE) {
-            estado = EXPLODING;
-            explosaoComeco = System.currentTimeMillis();
-            explosaoFim    = explosaoComeco + 500;
-        }
-    }
+    public boolean estaAtivo(){ return entIni_base.estaAtivo();}
+
+    public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
+
+    public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}
+
+
+
 }
+

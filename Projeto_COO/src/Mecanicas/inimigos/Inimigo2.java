@@ -3,47 +3,46 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
-
-import Mecanicas.abstratas.EntidadeInimigo;
+import Mecanicas.bases.EntidadeInimigoBase;
+import Mecanicas.interfaces.Colidivel;
 import Mecanicas.projetil.ProjetilPool;
 
-public class Inimigo2 extends EntidadeInimigo {
-        private ProjetilPool pool;
-        private int contadorTiro;
-        private long proximoTiro;
+import static Mecanicas.constantes.Estados.*;
 
-        public Inimigo2(double x, double y, ProjetilPool pool) {
-                super(x, y, 0.0, 1.0, 12.0);
-                this.pool = pool;
-                this.contadorTiro = 0;
-                this.proximoTiro = 0;
+public class Inimigo2{
+        private int contadorTiro;
+
+        EntidadeInimigoBase entIni_base;
+
+        public Inimigo2(double x, double y, double v, double angulo, double raio, double vr,ProjetilPool pool) {
+                entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr);
         }
 
         public void move(long delta) {
-                if (estado == EXPLODING) {
-                        if (now > explosaoFim) {
-                                estado = INACTIVATE;
+                if (entIni_base.getEstado() == EXPLODING) {
+                        if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
+                                entIni_base.setEstado(INACTIVATE);
                         }
                         return;
                 }
 
-                if (estado == ACTIVE) {
+                if (entIni_base.getEstado() == ACTIVE) {
                         // Verifica se saiu da tela
-                        if (y > GameLib.HEIGHT + 10) {
-                                estado = INACTIVATE;
+                        if (entIni_base.getY()> GameLib.HEIGHT + 10) {
+                                entIni_base.setEstado(INACTIVATE);
                                 return;
                         }
 
                         // Move reto para baixo
-                        y += vy * delta;
+                        entIni_base.setY(entIni_base.getY() + entIni_base.getV() * delta);
                 }
         }
 
         public void update(long deltaTime) {
                 // Se estiver explodindo, aguarda fim e depois inativa
-                if (estado == EXPLODING) {
-                        if (now > explosaoFim) {
-                                estado = INACTIVATE;
+                if (entIni_base.getEstado() == EXPLODING) {
+                        if (deltaTime > entIni_base.getexplosaoFim()) {
+                                entIni_base.setEstado(INACTIVATE);
                         }
                         return;
                 }
@@ -53,32 +52,30 @@ public class Inimigo2 extends EntidadeInimigo {
 
                 // Lógica de tiro
                 contadorTiro++;
-                if (contadorTiro >= 100 && podeAtirar(now)) {
-                        atirar(now, pool);
+                if (contadorTiro >= 100 ) {
+                        entIni_base.atirar(deltaTime);
                         contadorTiro = 0;
                 }
         }
 
         public void draw() {
-                if (estado == EXPLODING) {
+                if (entIni_base.getEstado() == EXPLODING) {
                         // Desenha a explosão
-                        double alpha = (now - explosaoComeco) / (double)(explosaoFim - explosaoComeco);
-                        GameLib.drawExplosion(x, y, alpha);
+                        double alpha = (System.currentTimeMillis() - entIni_base.getexplosaoComeco()) / (double)(entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());
+                        GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
                 } else {
                         // Desenha o inimigo diamante
                         GameLib.setColor(Color.MAGENTA);
-                        GameLib.drawDiamond(x, y, raio);
+                        GameLib.drawDiamond(entIni_base.getX(), entIni_base.getY(), entIni_base.getRaio());
                 }
         }
 
-        public boolean podeAtirar(long now) {
-                return now >= proximoTiro;
-        }
+        public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
-        public void atirar(long tempoAtual, ProjetilPool pool) {
-                if(!podeAtirar(tempoAtual)) return;
-                pool.disparar(x, y + raio, 0.0, 0.5, 2.0);
-                proximoTiro = tempoAtual + 500;
-        }
+        public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}
+        
+        public boolean estaAtivo(){ return entIni_base.estaAtivo();}
+
+        public void atirar(long tempoAtual) { entIni_base.atirar(tempoAtual);}
 
 }

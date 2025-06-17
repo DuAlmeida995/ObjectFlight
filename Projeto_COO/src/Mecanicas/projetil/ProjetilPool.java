@@ -17,7 +17,7 @@ public class ProjetilPool {
         }
     }
 
-    public void desenharTodos() {
+    public void drawProjeteis() {
         for (Projetil p : projeteis) {
             p.draw();
         }

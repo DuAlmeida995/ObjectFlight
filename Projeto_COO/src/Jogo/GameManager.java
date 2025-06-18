@@ -4,10 +4,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import static Mecanicas.constantes.Estados.ACTIVE;
+import static Mecanicas.constantes.Estados.INACTIVATE;
 
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
-import Mecanicas.bases.EntidadeInimigoBase;
+import Mecanicas.interfaces.Colidivel;
+import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
@@ -15,11 +17,10 @@ import Mecanicas.inimigos.*;
 
 public class GameManager {
     private boolean running;
-    private long nowTime;
+    private long tempoAtual;
 
     private Jogador jogador;
-    private List<EntidadeInimigoBase> inimigos;
-    private ProjetilPool projetilJogador;
+    private List<EntidadeInimigo> inimigos;
     private ProjetilPool projetilInimigo;
     private BackgroundEstrela fundo;
 
@@ -31,13 +32,13 @@ public class GameManager {
 
     public GameManager() {
         this.running         = true;
-        this.nowTime         = System.currentTimeMillis();
+        this.tempoAtual         = System.currentTimeMillis();
         this.jogador         = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9));
         this.inimigos        = new ArrayList<>();
         this.projetilInimigo = new ProjetilPool();
         this.fundo           = new BackgroundEstrela();
-        this.nextSpawnEnemy1 = nowTime + 2000;
-        this.nextSpawnEnemy2 = nowTime + 7000;
+        this.nextSpawnEnemy1 = tempoAtual + 2000;
+        this.nextSpawnEnemy2 = tempoAtual + 7000;
     }
 
     public void init() {
@@ -57,14 +58,14 @@ public class GameManager {
     public void loop() {
         while (running) {
 
-            long delta = System.currentTimeMillis() - nowTime;      
-            nowTime = System.currentTimeMillis();
+            long delta = System.currentTimeMillis() - tempoAtual;      
+            tempoAtual = System.currentTimeMillis();
 
             detectCollisions();
-            updateAll(delta,nowTime);
+            updateAll(delta,tempoAtual);
             handleInput(delta);
             renderAll();
-            busyWait(nowTime + 3);
+            busyWait(tempoAtual + 3);
         }
 
         System.exit(0);
@@ -75,8 +76,8 @@ public class GameManager {
     private void detectCollisions() {
         /* Jogador x Inimigos */
         if (jogador.getEstado() == ACTIVE) {
-            for (EntidadeInimigoBase e : inimigos) {
-                if (jogador.colideCom(e)) {
+            for (EntidadeInimigo e : inimigos) {
+                if (jogador.colideCom((Colidivel)e)) {
                     jogador.emColisao();
                 }
             }
@@ -89,10 +90,11 @@ public class GameManager {
         }
         /* Projéteis do jogador x inimigos */
         for (Projetil p : jogador.getProjetilPool()) {
-            if (p.getEstados() != ACTIVE) continue;
-            for (EntidadeInimigoBase e : inimigos) {
-                if (p.colideCom(e)) {
-                    e.emColisao();
+            for (EntidadeInimigo e : inimigos) {
+                if(e.getEstado() == ACTIVE){
+                    if (e.colideCom(p)) {
+                        e.emColisao();
+                    }
                 }
             }
         }
@@ -105,15 +107,11 @@ public class GameManager {
     private void spawnEnemies(long now) {
         /* Tipo 1: circulares, caindo a intervalos curtos */
         if (now > nextSpawnEnemy1) {
-            double x = Math.random() * (GameLib.WIDTH - 18) + 9; // evita borda
-            //inimigos.add(new Inimigo1(x, -10, 0.2, Math.PI/2, 0.0));
+            inimigos.add(new Inimigo1(Math.random() * (GameLib.WIDTH - 20.0) + 10.0, -10.0, 0.20 + Math.random() * 0.15, (3 * Math.PI) / 2, 9.0, 0.0));
             nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
         }
         /* Tipo 2: diamantes, mais espaçados */
         if (now > nextSpawnEnemy2) {
-            double x = Math.random() > 0.5
-                    ? GameLib.WIDTH * 0.2
-                    : GameLib.WIDTH * 0.8;
             //inimigos.add(new Inimigo2(x, -10, projetilInimigo));
             nextSpawnEnemy2 = now + ENEMY2_SPAWN_DELAY;
         }
@@ -129,7 +127,7 @@ public class GameManager {
         /* Atualiza o fundo. */
         fundo.update(delta);
         /* Atualiza os inimigos. */
-        for (EntidadeInimigoBase e : inimigos) //e.update(delta);
+        for (EntidadeInimigo e : inimigos) e.update(delta);
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
         jogador.update(nowTime);
         jogador.updateProjeteis(delta);
@@ -137,10 +135,10 @@ public class GameManager {
         //projetilJogador.update(delta);
         projetilInimigo.update(delta);
         /* Remover inimigos inativos */
-        Iterator<EntidadeInimigoBase> it = inimigos.iterator();
+        Iterator<EntidadeInimigo> it = inimigos.iterator();
         while (it.hasNext()) {
-            EntidadeInimigoBase e = it.next();
-            if (e.getEstado() != ACTIVE) it.remove();
+            EntidadeInimigo e = it.next();
+            if (e.getEstado() == INACTIVATE) it.remove();
         }
     }
 
@@ -155,7 +153,7 @@ public class GameManager {
 		    if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) jogador.setX(jogador.getX() - delta * jogador.getVX());
 		    if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) jogador.setX(jogador.getX() + delta  * jogador.getVX());
             if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
-                jogador.atirar(nowTime);
+                jogador.atirar(tempoAtual);
             }
             if (GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) {
             running = false;
@@ -175,8 +173,8 @@ public class GameManager {
         /* Desenha o jogador. */
         jogador.draw();
         /* Desenha os inimigos. */
-        for (EntidadeInimigoBase e : inimigos) {
-            //e.draw();
+        for (EntidadeInimigo e : inimigos) {
+            e.draw();
         }
         /* Desenha os projéteis. */
         //projetilJogador.desenharTodos();

@@ -5,7 +5,6 @@ import java.awt.Color;
 import Jogo.GameLib;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.interfaces.Colidivel;
-import Mecanicas.projetil.ProjetilPool;
 
 import static Mecanicas.constantes.Estados.*;
 
@@ -14,7 +13,7 @@ public class Inimigo2{
 
         EntidadeInimigoBase entIni_base;
 
-        public Inimigo2(double x, double y, double v, double angulo, double raio, double vr,ProjetilPool pool) {
+        public Inimigo2(double x, double y, double v, double angulo, double raio, double vr) {
                 entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr);
         }
 

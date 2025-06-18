@@ -87,12 +87,11 @@ public class Jogador implements Colidivel{
 
     /* Função que atualiza o estado do inimigo quando este entra em contato com uma entidade colidível. */
     public void emColisao() {
-        if (ent_base.getEstado() == ACTIVE) {
-            ent_base.setEstado(EXPLODING);
-            exp_base.setExplosaoComeco(System.currentTimeMillis());
-            exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 2000);
-        }
+        ent_base.setEstado(EXPLODING);
+        exp_base.setExplosaoComeco(System.currentTimeMillis());
+        exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 2000);
     }
+    
 
     /* Função a ser utilizada para atualizar os atributos do jogador em duas condições:
     * (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;

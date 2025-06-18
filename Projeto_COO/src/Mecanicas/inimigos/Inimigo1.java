@@ -3,44 +3,41 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.bases.EntidadeInimigoBase;
-import Mecanicas.interfaces.Colidivel;
-import Mecanicas.projetil.ProjetilPool;
 
+import Mecanicas.bases.EntidadeInimigoBase;
+import Mecanicas.constantes.Estados;
+import Mecanicas.interfaces.*;
 import static Mecanicas.constantes.Estados.*;
 
-public class Inimigo1{
+public class Inimigo1 implements EntidadeInimigo, Colidivel{
     
     EntidadeInimigoBase entIni_base;
-    ProjetilPool pool;
 
-    public Inimigo1(double x, double y, double v, double angulo, double raio, double vr, ProjetilPool pool) {
+    public Inimigo1(double x, double y, double v, double angulo, double raio, double vr) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr);
-        this.pool = pool;
-
     }
+    
+    public double getX(){ return entIni_base.getX();}
+    public double getY(){ return entIni_base.getY();}
+    public double getRaio() { return entIni_base.getRaio();}
 
+    public Estados getEstado(){ return entIni_base.getEstado();}
 
     public void move(long delta) {
         entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta);
-        entIni_base.setY(entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1));
+        entIni_base.setY(entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0));
         // calcule o deslocamento "dx" e "dy" a partir do módulo e do ângulo
-        double dx = Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta;
-        double dy = Math.sin(entIni_base.getAngulo()) * entIni_base.getY() * delta;
-        // se o eixo Y do seu sistema cresce para baixo, inverta o sinal:
-        // dy = -dy;
-        entIni_base.setX(entIni_base.getX() + dx);
-        entIni_base.setY(entIni_base.getY() + dy);
-        entIni_base.setAngulo(entIni_base.getAngulo() + entIni_base.getVR() * delta);
     }
 
     public void update(long delta) {
+        
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
+        
 
         // Movimento baseado em ângulo e velocidade vy
         move(delta);
@@ -53,9 +50,9 @@ public class Inimigo1{
 
     public void draw() {
         if (entIni_base.getEstado() == EXPLODING) {
-            double progress = (System.currentTimeMillis() - entIni_base.getexplosaoComeco())
-                    / (double)(entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());
-            GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), progress);
+            double alpha = (System.currentTimeMillis() - entIni_base.getexplosaoComeco()) / 
+                        (double) (entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());
+            GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
         } else {
             GameLib.setColor(Color.CYAN);
             GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), (float)entIni_base.getRaio());
@@ -64,7 +61,11 @@ public class Inimigo1{
 
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
-    public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}
+    public void emColisao(){
+        entIni_base.setEstado(EXPLODING);
+        entIni_base.setExplosaoComeco(System.currentTimeMillis());
+        entIni_base.setExplosaoFim(entIni_base.getexplosaoComeco() + 500);
+    }
 
 
 

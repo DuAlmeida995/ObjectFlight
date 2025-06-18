@@ -19,5 +19,4 @@ public class ExplosaoBase {
     public double getexplosaoFim() { return this.explosaoFim;}
     public void setExplosaoFim(double explosaoFim) { this.explosaoFim = explosaoFim;}
 
-    
 }

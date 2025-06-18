@@ -5,15 +5,14 @@ import java.awt.Color;
 import Jogo.GameLib;
 
 import Mecanicas.bases.EntidadeBase;
-import Mecanicas.bases.ExplosaoBase;
 import Mecanicas.bases.MovimentoBase;
+import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
 public class Projetil implements Colidivel{
 
     EntidadeBase ent_base;
     MovimentoBase mov_base;
-    ExplosaoBase exp_base;
 
     public Projetil(double x, double y, double vx, double vy, double raio) {
         ent_base = new EntidadeBase(x,y, raio);
@@ -26,6 +25,9 @@ public class Projetil implements Colidivel{
 
     public double getRaio() { return ent_base.getRaio();}
 
+    public Estados getEstados() { return ent_base.getEstado();}
+    public void setEstado(Estados estados) { ent_base.setEstado(estados);}
+    
     public void move(long delta) {
         ent_base.setX(ent_base.getX() + mov_base.getVX() * delta);
         ent_base.setY(ent_base.getY() + mov_base.getVY() * delta);
@@ -39,7 +41,6 @@ public class Projetil implements Colidivel{
         ent_base.getY() < 0 || ent_base.getY() > GameLib.HEIGHT);
     }
 
-    public boolean estaAtivo(){ return ent_base.estaAtivo();}
     public boolean colideCom(Colidivel outro) { return ent_base.colideCom(outro);}
 
     public void draw() {

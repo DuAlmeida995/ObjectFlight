@@ -1,29 +1,25 @@
 package Mecanicas.bases;
 
-import static Mecanicas.constantes.Estados.ACTIVE;
-
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
+/* class EntidadeBase
+ * Classe que serve de base para as demais entidades do jogo
+*/
+
 public class EntidadeBase{
     
-    /* Declara atributos básicos das entidades: 
-     * (double) coordenadas x y;
-     * (int) o estado atual da entidade;
-     */
-    protected double x, y, raio;
-    protected Estados estado;
+    private double x, y, raio; /* Coordenadas x e y, e raio (tamanho) da entidade */
+    private Estados estado; /* Estado atual da entidade (INACTIVATE, ACTIVE ou EXPLODING) */
 
-    /* Construtor da classe Entidade. */
     public EntidadeBase(double x, double y, double raio) {
         this.x = x;
         this.y = y;
         this.raio = raio;
-        this.estado = Estados.ACTIVE;
+        this.estado = Estados.ACTIVE; /* Inicia a entidade como ACTIVE */
     }
 
-    /* Funções getters e setters para a posição, raio e o estado da entidade.
-     */
+    /* Funções getters e setters para a posição, raio e o estado da entidade. */
     
     /* posição */
     public double getX() { return x;}
@@ -39,8 +35,7 @@ public class EntidadeBase{
     public Estados getEstado() { return this.estado;}
     public void setEstado(Estados estado) { this.estado = estado;}
 
-    public boolean estaAtivo(){ return this.estado == ACTIVE;}
-
+    /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel o) {
         double dx = getX() - o.getX();
         double dy = getY() - o.getY();

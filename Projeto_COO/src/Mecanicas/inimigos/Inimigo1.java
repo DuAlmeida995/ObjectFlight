@@ -62,8 +62,6 @@ public class Inimigo1{
         }
     }
 
-    public boolean estaAtivo(){ return entIni_base.estaAtivo();}
-
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
     public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}

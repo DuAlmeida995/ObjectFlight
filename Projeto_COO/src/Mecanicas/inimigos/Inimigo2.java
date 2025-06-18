@@ -74,8 +74,6 @@ public class Inimigo2{
 
         public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}
         
-        public boolean estaAtivo(){ return entIni_base.estaAtivo();}
-
         public void atirar(long tempoAtual) { entIni_base.atirar(tempoAtual);}
 
 }

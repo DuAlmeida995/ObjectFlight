@@ -2,6 +2,9 @@ package Jogo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static Mecanicas.constantes.Estados.ACTIVE;
+
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
 import Mecanicas.bases.EntidadeInimigoBase;
@@ -71,7 +74,7 @@ public class GameManager {
 
     private void detectCollisions() {
         /* Jogador x Inimigos */
-        if (jogador.estaAtivo()) {
+        if (jogador.getEstado() == ACTIVE) {
             for (EntidadeInimigoBase e : inimigos) {
                 if (jogador.colideCom(e)) {
                     jogador.emColisao();
@@ -86,7 +89,7 @@ public class GameManager {
         }
         /* Projéteis do jogador x inimigos */
         for (Projetil p : jogador.getProjetilPool()) {
-            if (!p.estaAtivo()) continue;
+            if (p.getEstados() != ACTIVE) continue;
             for (EntidadeInimigoBase e : inimigos) {
                 if (p.colideCom(e)) {
                     e.emColisao();
@@ -137,7 +140,7 @@ public class GameManager {
         Iterator<EntidadeInimigoBase> it = inimigos.iterator();
         while (it.hasNext()) {
             EntidadeInimigoBase e = it.next();
-            if (!e.estaAtivo()) it.remove();
+            if (e.getEstado() != ACTIVE) it.remove();
         }
     }
 
@@ -146,7 +149,7 @@ public class GameManager {
      */
 
     private void handleInput(long delta) {
-        if(jogador.estaAtivo()){
+        if(jogador.getEstado() == ACTIVE){
             if(GameLib.iskeyPressed(GameLib.KEY_UP)) jogador.setY(jogador.getY() - delta * jogador.getVY());
 		    if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) jogador.setY(jogador.getY() + delta * jogador.getVY());
 		    if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) jogador.setX(jogador.getX() - delta * jogador.getVX());

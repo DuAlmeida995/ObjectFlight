@@ -27,14 +27,14 @@ public class Jogador implements Colidivel{
     ExplosaoBase exp_base;  /* Objeto para administrar as propriedades de 'Explosao' */
     MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
 
-    public Jogador(double x, double y) {
+    public Jogador(double x, double y, long tempoAtual) {
         ent_base = new EntidadeBase(x,y,12); /* Raio -> 12 */ 
         mov_base = new MovimentoBase(0.25, 0.25); /* Velocidade no eixo X e eixo Y -> 0.25 */
         exp_base = new ExplosaoBase(0, 0);
-        ati_base = new AtiradorBase();
+        ati_base = new AtiradorBase(tempoAtual + 100); /* Cadência dos disparos dos projéteis */
     }
 
-    /* Funções getters e setters de posição, raio, velocidade no eixo X e eixo Y, */
+    /* Funções getters e setters de posição, raio, velocidade no eixo X e eixo Y, estado e um getter para lista de projéteis.*/
     
     /* posição */
     public double getX() { return ent_base.getX();}
@@ -57,13 +57,12 @@ public class Jogador implements Colidivel{
     public void setEstado(Estados estados){ ent_base.setEstado(estados);}
 
     /* 'pool' de projéteis */
-    public List<Projetil> getProjetilPool(){ return ati_base.getProjetilPool();}
+    public List<Projetil> getProjetilPool(){ return ati_base.getProjeteis();}
     
-
     /* Função para desenhar a entidade Jogador e seus projéteis na tela */
     public void draw() {
 
-        ati_base.drawProjeteis();
+        ati_base.drawProjeteisJogador();
 
         if (ent_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - exp_base.getexplosaoComeco()) / 
@@ -75,25 +74,27 @@ public class Jogador implements Colidivel{
         }
     }
 
-    /* Função que faz com que o jogador atire um projétil, ativando a função de disparar
+    /* Função que faz com que o jogador atire um projétil, ativando a função de atirar
     * da classe ProjetilPool. */
     public void atirar(long tempoAtual){
-        ati_base.atirar(ent_base.getX(), ent_base.getY() - ent_base.getRaio() * 2, 0.0, 
-        -0.5, 0, tempoAtual, 100);
+        if(ati_base.podeAtirar(tempoAtual)){
+            ati_base.disparar(ent_base.getX(), ent_base.getY() - ent_base.getRaio() * 2, 0.0, 
+            -0.5, 0);
+            ati_base.setProximoTiro(tempoAtual + 100);
+        }
     }
         
     /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return ent_base.colideCom(outro);}
 
-    /* Função que atualiza o estado do inimigo quando este entra em contato com uma entidade colidível. */
+    /* Função que atualiza o estado do inimigo (ou projétil deste) quando este entra em contato com uma entidade colidível. */
     public void emColisao() {
         ent_base.setEstado(EXPLODING);
         exp_base.setExplosaoComeco(System.currentTimeMillis());
         exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 2000);
     }
     
-
-    /* Função a ser utilizada para atualizar os atributos do jogador em duas condições:
+    /* Função que atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     * (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
     * (ii) caso, ao calcular o input do usuário, o jogador não saia da tela do jogo. */
     public void update(long tempoAtual){
@@ -112,5 +113,6 @@ public class Jogador implements Colidivel{
 		if(ent_base.getY() >= GameLib.HEIGHT) ent_base.setY(GameLib.HEIGHT - 1);
     }
 
+    /* Função que atualiza os atributos dos projéteis do jogador. */
     public void updateProjeteis(long deltaTime){ ati_base.updateProjeteis(deltaTime);}
 }

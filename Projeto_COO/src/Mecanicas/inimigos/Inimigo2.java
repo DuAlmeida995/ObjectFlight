@@ -13,8 +13,8 @@ public class Inimigo2{
 
         EntidadeInimigoBase entIni_base;
 
-        public Inimigo2(double x, double y, double v, double angulo, double raio, double vr) {
-                entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr);
+        public Inimigo2(double x, double y, double v, double angulo, double raio, double vr, long proximoTiro) {
+                entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, proximoTiro);
         }
 
         public void move(long delta) {
@@ -52,7 +52,7 @@ public class Inimigo2{
                 // Lógica de tiro
                 contadorTiro++;
                 if (contadorTiro >= 100 ) {
-                        entIni_base.atirar(deltaTime);
+                        //entIni_base.atirar(deltaTime);
                         contadorTiro = 0;
                 }
         }
@@ -73,6 +73,6 @@ public class Inimigo2{
 
         public void emColisao(Colidivel outro){ entIni_base.colideCom(outro);}
         
-        public void atirar(long tempoAtual) { entIni_base.atirar(tempoAtual);}
+        //public void atirar(long tempoAtual) { entIni_base.atirar(tempoAtual);}
 
 }

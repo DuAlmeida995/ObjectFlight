@@ -4,7 +4,7 @@ import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
 /* class EntidadeBase
- * Classe que serve de base para as demais entidades do jogo
+ * Classe que serve de base para as demais entidades do jogo. 
 */
 
 public class EntidadeBase{
@@ -16,7 +16,7 @@ public class EntidadeBase{
         this.x = x;
         this.y = y;
         this.raio = raio;
-        this.estado = Estados.ACTIVE; /* Inicia a entidade como ACTIVE */
+        this.estado = Estados.ACTIVE; 
     }
 
     /* Funções getters e setters para a posição, raio e o estado da entidade. */

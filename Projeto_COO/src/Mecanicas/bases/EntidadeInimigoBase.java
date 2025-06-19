@@ -6,7 +6,7 @@ import Mecanicas.interfaces.Colidivel;
 import static Mecanicas.constantes.Estados.*;
 
 /* class EntidadeInimigoBase
- * Classe que serve de base para as entidades de inimigo do jogo
+ * Classe que serve de base para as entidades de inimigo do jogo. 
 */
 
 public class EntidadeInimigoBase implements Colidivel{
@@ -17,10 +17,10 @@ public class EntidadeInimigoBase implements Colidivel{
 
     double angulo, v, vr; /* Ângulo, velocidade e velocidade de rotação */
 
-    public EntidadeInimigoBase(double x, double y, double v, double angulo, double raio, double vr){
+    public EntidadeInimigoBase(double x, double y, double v, double angulo, double raio, double vr, long proximoTiro){
         ent_base = new EntidadeBase(x, y, raio);
         exp_base = new ExplosaoBase(0, 0); 
-        ati_base = new AtiradorBase();
+        ati_base = new AtiradorBase(proximoTiro);
         this.v = v;
         this.angulo = angulo;
         this.vr = vr;
@@ -61,6 +61,11 @@ public class EntidadeInimigoBase implements Colidivel{
     public double getexplosaoFim() { return exp_base.getexplosaoFim();}
     public void setExplosaoFim(double explosaoFim) { exp_base.setExplosaoFim(explosaoFim);}
 
+    /* atributos de atirador */
+
+    public long getProximoTiro() { return ati_base.getProximoTiro();}
+    public void setProximoTiro(long proximoTiro) { ati_base.setProximoTiro(proximoTiro);}
+
     /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return ent_base.colideCom(outro);}
 
@@ -73,9 +78,4 @@ public class EntidadeInimigoBase implements Colidivel{
         }
     }
 
-    /* Função que realiza os disparo dos projéteis dos inimigos. */
-    public void atirar(long tempoAtual){
-        ati_base.atirar(ent_base.getX(), ent_base.getY(), 0, 
-        this.v, ent_base.getRaio(), tempoAtual, 500);
-    }
 }

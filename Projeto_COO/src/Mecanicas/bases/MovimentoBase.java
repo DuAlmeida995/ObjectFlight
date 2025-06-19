@@ -3,6 +3,7 @@ package Mecanicas.bases;
 /* classMovimentoBase
  * Classe que serve de base para as entidades que se movem em ambos eixos, isto é, jogador e projéteis.
 */
+
 public class MovimentoBase {
 
     double vx, vy; /* Velocidade no eixo x e y */

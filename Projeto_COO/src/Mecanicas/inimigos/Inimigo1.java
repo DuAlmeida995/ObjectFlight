@@ -57,11 +57,7 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
 
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
-    public void emColisao(){
-        entIni_base.setEstado(EXPLODING);
-        entIni_base.setExplosaoComeco(System.currentTimeMillis());
-        entIni_base.setExplosaoFim(entIni_base.getexplosaoComeco() + 500);
-    }
+    public void emColisao(){entIni_base.emColisao();}
 
 
 

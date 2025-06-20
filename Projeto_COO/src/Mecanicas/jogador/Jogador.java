@@ -79,7 +79,7 @@ public class Jogador implements Colidivel{
     public void atirar(long tempoAtual){
         if(ati_base.podeAtirar(tempoAtual)){
             ati_base.disparar(ent_base.getX(), ent_base.getY() - ent_base.getRaio() * 2, 0.0, 
-            -0.5, 0);
+            -1.0, 0);
             ati_base.setProximoTiro(tempoAtual + 100);
         }
     }

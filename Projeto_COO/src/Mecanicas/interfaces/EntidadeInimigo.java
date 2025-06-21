@@ -13,8 +13,8 @@ public interface EntidadeInimigo{
     public double getAngulo();
     public long getProximoTiro();
     public void setProximoTiro(long proximoTiro);
-    public void draw();
     public boolean colideCom(Colidivel outro);
     public void emColisao();
+    public void draw();
     public void update(long delta);
 }

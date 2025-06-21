@@ -10,6 +10,11 @@ import java.util.ArrayList;
 public class ProjetilPool {
     private List<Projetil> projeteis = new ArrayList<>(); /* Lista da Coleção Java para administrar os projéteis */
 
+    /* Função getter para a lista de projéteis da entidade. */
+    public List<Projetil> getProjeteis() {
+        return projeteis;
+    }
+
     /* Função para realizar o disparo de um projétil, isto é, cria um objeto 'Projetil' e adiciona a lista. */
     public void disparar(double x, double y, double vx, double vy, double raio) {
         projeteis.add(new Projetil(x, y, vx, vy, raio));
@@ -35,10 +40,5 @@ public class ProjetilPool {
         for (Projetil p : projeteis){
             p.drawInimigo();
         }
-    }
-
-    /* Função que retorna a lista de projéteis (útil no tratamento de colisões e atualizações dos projéteis inimigos). */
-    public List<Projetil> getProjeteis() {
-        return projeteis;
     }
 }

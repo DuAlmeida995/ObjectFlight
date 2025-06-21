@@ -42,4 +42,5 @@ public class EntidadeBase{
         double distancia = Math.hypot(dx, dy);
         return distancia < (getRaio() + o.getRaio()) * 0.8;
     }
+
 }

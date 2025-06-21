@@ -58,22 +58,8 @@ public class Jogador implements Colidivel{
 
     /* 'pool' de projéteis */
     public List<Projetil> getProjetilPool(){ return ati_base.getProjeteis();}
+
     
-    /* Função para desenhar a entidade Jogador e seus projéteis na tela */
-    public void draw() {
-
-        ati_base.drawProjeteisJogador();
-
-        if (ent_base.getEstado() == EXPLODING) {
-            double alpha = (System.currentTimeMillis() - exp_base.getexplosaoComeco()) / 
-                        (double) (exp_base.getexplosaoFim() - exp_base.getexplosaoComeco());
-            GameLib.drawExplosion(ent_base.getX(), ent_base.getY(), alpha);
-        } else {
-            GameLib.setColor(Color.BLUE);
-            GameLib.drawPlayer(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
-        }
-    }
-
     /* Função que faz com que o jogador atire um projétil, ativando a função de atirar
     * da classe ProjetilPool. */
     public void atirar(long tempoAtual){
@@ -93,6 +79,7 @@ public class Jogador implements Colidivel{
         exp_base.setExplosaoComeco(System.currentTimeMillis());
         exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 2000);
     }
+    
     
     /* Função que atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     * (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
@@ -115,4 +102,20 @@ public class Jogador implements Colidivel{
 
     /* Função que atualiza os atributos dos projéteis do jogador. */
     public void updateProjeteis(long deltaTime){ ati_base.updateProjeteis(deltaTime);}
+
+     /* Função para desenhar a entidade Jogador e seus projéteis na tela */
+    public void draw() {
+
+        ati_base.drawProjeteisJogador();
+
+        if (ent_base.getEstado() == EXPLODING) {
+            double alpha = (System.currentTimeMillis() - exp_base.getexplosaoComeco()) / 
+                        (double) (exp_base.getexplosaoFim() - exp_base.getexplosaoComeco());
+            GameLib.drawExplosion(ent_base.getX(), ent_base.getY(), alpha);
+        } else {
+            GameLib.setColor(Color.BLUE);
+            GameLib.drawPlayer(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
+        }
+    }
+
 }

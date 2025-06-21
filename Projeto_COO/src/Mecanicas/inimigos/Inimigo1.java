@@ -9,23 +9,46 @@ import Mecanicas.interfaces.*;
 
 import static Mecanicas.constantes.Estados.*;
 
+/* class Inimigo1
+ * Classe que implementa a entidade de inimigo tipo 1 no jogo.
+*/
 public class Inimigo1 implements EntidadeInimigo, Colidivel{
     
-    EntidadeInimigoBase entIni_base;
+    EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
 
     public Inimigo1(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
     }
     
+    /* Funções getters e setters de posição e proximo tiro e um getter para estado, raio, ângulo.*/
+
+    /* posição */
     public double getX(){ return entIni_base.getX();}
     public double getY(){ return entIni_base.getY();}
-    public double getRaio() { return entIni_base.getRaio();}
-    public double getAngulo() { return entIni_base.getAngulo();}
+
+    /* próximo tiro */
     public long getProximoTiro() { return entIni_base.getProximoTiro();}
     public void setProximoTiro(long proximoTiro) { entIni_base.setProximoTiro(proximoTiro);}
+    
+    /* raio */
+    public double getRaio() { return entIni_base.getRaio();}
 
+    /* ângulo */
+    public double getAngulo() { return entIni_base.getAngulo();}
+
+    /* estado */
     public Estados getEstado(){ return entIni_base.getEstado();}
 
+    /* Função que calcula se uma entidade entra em colisão com outra. */
+    public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
+
+    /* Função que atualiza o estado do inimigo (ou projétil deste) quando este entra em contato com uma entidade colidível. */
+    public void emColisao(){entIni_base.emColisao();}
+
+    /* Função que atualiza os atributos do inimigo de tipo 1 ao longo do tempo de jogo em duas condições:
+    * (i) caso esse tenha explodido, torna-se inativo;
+    * (ii) caso esse tenha ultrapassado os limites do jogo.
+       Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
     public void update(long delta) {
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
@@ -33,16 +56,18 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
             }
             return;
         }
+
+         if (entIni_base.getY() > GameLib.HEIGHT + entIni_base.getRaio()) {
+            entIni_base.setEstado(INACTIVATE);
+            return;
+        }
         
         entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta);
         entIni_base.setY(entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0));
         entIni_base.setAngulo(entIni_base.getAngulo() + entIni_base.getVR() * delta);
-
-        if (entIni_base.getY() > GameLib.HEIGHT + entIni_base.getRaio()) {
-            entIni_base.setEstado(INACTIVATE);
-        }
     }
 
+    /* Função para desenhar a entidade inimigo tipo 1. */
     public void draw() {
 
         if (entIni_base.getEstado() == EXPLODING) {
@@ -54,12 +79,6 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
             GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), (float)entIni_base.getRaio());
         }
     }
-
-    public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
-
-    public void emColisao(){entIni_base.emColisao();}
-
-
 
 }
 

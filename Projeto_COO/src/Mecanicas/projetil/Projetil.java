@@ -37,12 +37,6 @@ public class Projetil implements Colidivel{
     public Estados getEstados() { return ent_base.getEstado();}
     public void setEstado(Estados estados) { ent_base.setEstado(estados);}
 
-    /*Função a ser utilizada para atualizar os atributos do projétil ao longo do tempo de jogo. */
-    public void update(long delta){
-        ent_base.setX(ent_base.getX() + mov_base.getVX() * delta);
-        ent_base.setY(ent_base.getY() + mov_base.getVY() * delta);    
-    }
-    
     /* Função para verificar se o projétil está fora dos limites do jogo. */
     public boolean estaForaDaTela() {
         return (ent_base.getX() < 0 || ent_base.getX() > GameLib.WIDTH || 
@@ -51,6 +45,12 @@ public class Projetil implements Colidivel{
 
     /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro) { return ent_base.colideCom(outro);}
+
+     /*Função a ser utilizada para atualizar os atributos do projétil ao longo do tempo de jogo. */
+    public void update(long delta){
+        ent_base.setX(ent_base.getX() + mov_base.getVX() * delta);
+        ent_base.setY(ent_base.getY() + mov_base.getVY() * delta);    
+    }
 
     /* Função que desenha o projétil do jogador. */
     public void drawJogador() {

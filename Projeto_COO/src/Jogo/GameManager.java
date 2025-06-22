@@ -140,11 +140,28 @@ public class GameManager {
         fundo.update(delta);
         /* Atualiza os inimigos. */
         projeteisInimigos.updateProjeteis(delta);
-        for (EntidadeInimigo e : inimigos){
-            e.update(delta); 
-            if(nowTime > e.getProximoTiro()){     
-                projeteisInimigos.disparar(e.getX(), e.getY(), Math.cos(e.getAngulo()) * 0.45, Math.sin(e.getAngulo()) * 0.45 *(-1.0), 2.0);
-                e.setProximoTiro((long)(e.getProximoTiro() + 200 + Math.random() * 500));
+        for (EntidadeInimigo e : inimigos) {
+            e.update(delta);
+            /* Controle de disparo para o Inimigo2 */
+            if (e instanceof Inimigo2) {
+                Inimigo2 inimigo2 = (Inimigo2) e;
+                if (inimigo2.deveDisparar()) {
+                    /* Dispara 3 projéteis em um formato de leque */
+                    double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };
+                    for (double angle : angles) {
+                        /* Adiciona variação aleatória no ângulo */
+                        double a = angle + Math.random() * Math.PI/6 - Math.PI/12;
+                        double vx = Math.cos(a) * 0.30;
+                        double vy = Math.sin(a) * 0.30;
+                        projeteisInimigos.disparar(e.getX(), e.getY(), vx, vy, 2.0);
+                    }
+                }
+            }
+            // Disparo padrão para o Inimigo1
+            else if (nowTime > e.getProximoTiro() && e.getEstado() == ACTIVE) {
+                projeteisInimigos.disparar(e.getX(), e.getY(), Math.cos(e.getAngulo()) * 0.45, Math.sin(e.getAngulo()) * 0.45 * (-1.0), 2.0
+                );
+                e.setProximoTiro(nowTime + 200 + (long)(Math.random() * 500));
             }
         }
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */

@@ -9,6 +9,7 @@ import static Mecanicas.constantes.Estados.INACTIVATE;
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
 import Mecanicas.bases.AtiradorBase;
+import Mecanicas.chefes.Chefe1;
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.jogador.*;
@@ -22,28 +23,35 @@ public class GameManager {
 
     private Jogador jogador;
     private List<EntidadeInimigo> inimigos;
+    private Chefe1 chefe1;
     private AtiradorBase projeteisInimigos;
 
     private BackgroundEstrela fundo;
 
+    private final int QUANT_VIDA_JOGADOR = 5;
+
     private long nextSpawnEnemy1;
     private long nextSpawnEnemy2;
+    private long spawnChefe; 
+    private boolean spawnouChefe = false;
 
     private int contadorInimigo2 = 0;
     private double inimigo2SpawnX = GameLib.WIDTH * 0.20; 
 
-    private static final long ENEMY1_SPAWN_DELAY = 500;   // intervalo em ms
+    private static final long ENEMY1_SPAWN_DELAY = 500;   
     private static final long ENEMY2_SPAWN_DELAY = 3000;
 
     public GameManager() {
         this.running           = true;
         this.tempoAtual        = System.currentTimeMillis();
-        this.jogador           = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual);
+        this.jogador           = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, QUANT_VIDA_JOGADOR);
         this.inimigos          = new ArrayList<>();
+        this.chefe1            = new Chefe1(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
         this.projeteisInimigos = new AtiradorBase(tempoAtual + 500);
         this.fundo             = new BackgroundEstrela();
         this.nextSpawnEnemy1   = tempoAtual + 2000;
         this.nextSpawnEnemy2   = tempoAtual + 7000;
+        this.spawnChefe        = tempoAtual + 10000;
     }
 
     public void init() {
@@ -79,26 +87,43 @@ public class GameManager {
     /* (1) Função que detecta possíveis colisões das Entidades colidíveis no jogo. */
 
     private void detectCollisions() {
-        /* Jogador x Inimigos */
-        if (jogador.getEstado() == ACTIVE) {
+        if (jogador.getEstado() == ACTIVE && !jogador.estaInvencivel()) {
+            /* Jogador x Inimigos */
             for (EntidadeInimigo e : inimigos) {
                 if (jogador.colideCom((Colidivel)e)) {
-                    jogador.emColisao();
-                }
-                for (Projetil p : projeteisInimigos.getProjeteis()) {
-                if (jogador.colideCom(p)) {
-                    jogador.emColisao();
-                }
-            }
+                    jogador.reduzir();
+                    if(jogador.estaMorto()){
+                        jogador.emColisao();
+                        jogador.resetar();
+                    }
+                }  
             }
             /* Jogador x Projéteis inimigos */
+            for (Projetil p : projeteisInimigos.getProjeteis()) {
+                if (jogador.colideCom(p)) {
+                    jogador.reduzir();
+                    if(jogador.estaMorto()){
+                        jogador.emColisao();
+                        jogador.resetar();
+                    }
+                }
+            }
         }
+
         /* Projéteis do jogador x inimigos */
         for (Projetil p : jogador.getProjetilPool()) {
             for (EntidadeInimigo e : inimigos) {
                 if(e.getEstado() == ACTIVE){
                     if (e.colideCom(p)) {
                         e.emColisao();
+                    }
+                }
+            }
+            if(chefe1.getEstado() == ACTIVE && !chefe1.estaInvencivel()){
+                if(chefe1.colideCom(p)){
+                    chefe1.reduzir();
+                    if(chefe1.estaMorto()){
+                        chefe1.emColisao();
                     }
                 }
             }
@@ -109,22 +134,30 @@ public class GameManager {
      * devem nascer no jogo.
      */
 
-    private void spawnEnemies(long now) {
+    private void spawnChefe(long tempoAtual){
+        if(tempoAtual > spawnChefe && !spawnouChefe){
+            chefe1.setEstado(ACTIVE);
+            spawnouChefe = true;
+        }
+
+    }
+
+    private void spawnEnemies(long tempoAtual) {
         /* Tipo 1: circulares, caindo a intervalos curtos */
-        if (now > nextSpawnEnemy1) {
-            inimigos.add(new Inimigo1(Math.random() * (GameLib.WIDTH - 20.0) + 10.0, -10.0, 0.20 + Math.random() * 0.15, (3 * Math.PI) / 2, 9.0, 0.0, now));
-            nextSpawnEnemy1 = now + ENEMY1_SPAWN_DELAY;
+        if (tempoAtual > nextSpawnEnemy1) {
+            inimigos.add(new Inimigo1(Math.random() * (GameLib.WIDTH - 20.0) + 10.0, -10.0, 0.20 + Math.random() * 0.15, (3 * Math.PI) / 2, 9.0, 0.0, tempoAtual));
+            nextSpawnEnemy1 = tempoAtual + ENEMY1_SPAWN_DELAY;
         }
         /* Tipo 2: diamantes, mais espaçados */
-        if (now > nextSpawnEnemy2) {
-            inimigos.add(new Inimigo2(inimigo2SpawnX, -10.0, 0.42, (double)(3 * Math.PI) / 2, 12.0, 0.0, now));
+        if (tempoAtual > nextSpawnEnemy2) {
+            inimigos.add(new Inimigo2(inimigo2SpawnX, -10.0, 0.42, (double)(3 * Math.PI) / 2, 12.0, 0.0, tempoAtual));
             contadorInimigo2++;
             if(contadorInimigo2 < 10){
-                nextSpawnEnemy2 = now + 150;
+                nextSpawnEnemy2 = tempoAtual + 150;
             }else{
                 contadorInimigo2 = 0;
                 inimigo2SpawnX = Math.random() > 0.5 ? GameLib.WIDTH * 0.2 : GameLib.WIDTH * 0.8;
-                nextSpawnEnemy2 = (long) (now + ENEMY2_SPAWN_DELAY + Math.random() * 3000);        
+                nextSpawnEnemy2 = (long) (tempoAtual + ENEMY2_SPAWN_DELAY + Math.random() * 3000);        
             }
        }
     }
@@ -133,39 +166,22 @@ public class GameManager {
      * elemento na tela.
      */
 
-    private void updateAll(long delta, long nowTime) {
+    private void updateAll(long delta, long tempoAtual) {
         /* Verifica se inimigos devem nascer. */
-        spawnEnemies(nowTime);
+        if(!spawnouChefe) spawnEnemies(tempoAtual);
+        spawnChefe(tempoAtual);
         /* Atualiza o fundo. */
         fundo.update(delta);
         /* Atualiza os inimigos. */
         projeteisInimigos.updateProjeteis(delta);
         for (EntidadeInimigo e : inimigos) {
             e.update(delta);
-            /* Controle de disparo para o Inimigo2 */
-            if (e instanceof Inimigo2) {
-                Inimigo2 inimigo2 = (Inimigo2) e;
-                if (inimigo2.deveDisparar()) {
-                    /* Dispara 3 projéteis em um formato de leque */
-                    double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };
-                    for (double angle : angles) {
-                        /* Adiciona variação aleatória no ângulo */
-                        double a = angle + Math.random() * Math.PI/6 - Math.PI/12;
-                        double vx = Math.cos(a) * 0.30;
-                        double vy = Math.sin(a) * 0.30;
-                        projeteisInimigos.disparar(e.getX(), e.getY(), vx, vy, 2.0);
-                    }
-                }
-            }
-            // Disparo padrão para o Inimigo1
-            else if (nowTime > e.getProximoTiro() && e.getEstado() == ACTIVE) {
-                projeteisInimigos.disparar(e.getX(), e.getY(), Math.cos(e.getAngulo()) * 0.45, Math.sin(e.getAngulo()) * 0.45 * (-1.0), 2.0
-                );
-                e.setProximoTiro(nowTime + 200 + (long)(Math.random() * 500));
-            }
+            e.disparar(projeteisInimigos, tempoAtual);
         }
+        chefe1.update(delta);
+
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
-        jogador.update(nowTime);
+        jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
 
         /* Remover inimigos inativos */
@@ -205,14 +221,15 @@ public class GameManager {
         fundo.drawBackground();
         fundo.drawForeground();
         /* Desenha o jogador. */
-        jogador.draw();
         /* Desenha os inimigos. */
         for (EntidadeInimigo e : inimigos) {
             e.draw();
         }
         projeteisInimigos.drawProjeteisInimigo();
-        /* Desenha os projéteis. */
-        //projetilJogador.desenharTodos();
+        
+        jogador.draw();
+        chefe1.draw();
+
         /* Apresenta o frame. */
         GameLib.display();
     }

@@ -3,6 +3,7 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
+import Mecanicas.bases.AtiradorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
@@ -55,6 +56,20 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
                 return false;
         }
 
+        public void disparar(AtiradorBase projeteisInimigos, long tempoAtual){
+                if (deveDisparar()) {
+                /* Dispara 3 projéteis em um formato de leque */
+                    double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };
+                    for (double angle : angles) {
+                        /* Adiciona variação aleatória no ângulo */
+                        double a = angle + Math.random() * Math.PI/6 - Math.PI/12;
+                        double vx = Math.cos(a) * 0.30;
+                        double vy = Math.sin(a) * 0.30;
+                        projeteisInimigos.disparar(entIni_base.getX(), entIni_base.getY(), vx, vy, 2.0);
+                    }
+                }
+        }
+
         /* Função que atualiza os atributos do inimigo de tipo 2 ao longo do tempo de jogo em duas condições:
         * (i) caso esse tenha explodido, torna-se inativo;
         * (ii) caso esse tenha ultrapassado os limites do jogo.
@@ -80,27 +95,27 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
 
 
                 if (!rotacaoCompleta) {
-                if(anteriorY < threshold && entIni_base.getY() >= threshold){
-                        if(entIni_base.getX() < GameLib.WIDTH / 2) entIni_base.setVR(0.003);
-			else entIni_base.setVR(-0.003);
-                }
+                        if(anteriorY < threshold && entIni_base.getY() >= threshold){
+                                if(entIni_base.getX() < GameLib.WIDTH / 2) entIni_base.setVR(0.003);
+			        else entIni_base.setVR(-0.003);
+                        }
 
-                if(entIni_base.getVR() > 0 && Math.abs(entIni_base.getAngulo() - 3 * Math.PI) < 0.05){
-                        entIni_base.setVR(0.0);
-                        entIni_base.setAngulo(3*Math.PI);
-                        rotacaoCompleta = true;
-                        deveDisparar = true;
-                }
+                        if(entIni_base.getVR() > 0 && Math.abs(entIni_base.getAngulo() - 3 * Math.PI) < 0.05){
+                                entIni_base.setVR(0.0);
+                                entIni_base.setAngulo(3*Math.PI);
+                                rotacaoCompleta = true;
+                                deveDisparar = true;
+                        }
 
-                if(entIni_base.getVR() < 0 && Math.abs(entIni_base.getAngulo()) <  0.05){
-                        entIni_base.setVR(0.0);
-                        entIni_base.setAngulo(0.0);
-                        rotacaoCompleta = true;
-                        deveDisparar = true;
-                }
+                        if(entIni_base.getVR() < 0 && Math.abs(entIni_base.getAngulo()) <  0.05){
+                                entIni_base.setVR(0.0);
+                                entIni_base.setAngulo(0.0);
+                                rotacaoCompleta = true;
+                                deveDisparar = true;
+                        }
 
+                }
         }
-                }
 
         /* Função para desenhar a entidade inimigo tipo 2. */
         public void draw() {

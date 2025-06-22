@@ -3,11 +3,13 @@ package Mecanicas.jogador;
 import java.awt.Color;
 import java.util.List;
 
+
 import Jogo.GameLib;
 
 import Mecanicas.bases.EntidadeBase;
 import Mecanicas.bases.ExplosaoBase;
 import Mecanicas.bases.MovimentoBase;
+import Mecanicas.bases.VidaBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.bases.AtiradorBase;
 
@@ -26,12 +28,14 @@ public class Jogador implements Colidivel{
     EntidadeBase ent_base;  /* Objeto para administrar as propriedades de 'Entidade' */
     ExplosaoBase exp_base;  /* Objeto para administrar as propriedades de 'Explosao' */
     MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
+    VidaBase vid_base;      /* Objeto para administrar as propriedades de 'Vida' */
 
-    public Jogador(double x, double y, long tempoAtual) {
+    public Jogador(double x, double y, long tempoAtual, int vidaMaxima) {
         ent_base = new EntidadeBase(x,y,12); /* Raio -> 12 */ 
         mov_base = new MovimentoBase(0.25, 0.25); /* Velocidade no eixo X e eixo Y -> 0.25 */
         exp_base = new ExplosaoBase(0, 0);
         ati_base = new AtiradorBase(tempoAtual + 100); /* Cadência dos disparos dos projéteis */
+        vid_base = new VidaBase(vidaMaxima);
     }
 
     /* Funções getters e setters de posição, raio, velocidade no eixo X e eixo Y, estado e um getter para lista de projéteis.*/
@@ -79,13 +83,20 @@ public class Jogador implements Colidivel{
         exp_base.setExplosaoComeco(System.currentTimeMillis());
         exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 2000);
     }
+
+    public boolean estaMorto() { return vid_base.estaMorto();}
+    public boolean estaInvencivel() { return vid_base.estaInvencivel();}
+    public void reduzir() { vid_base.reduzir();}
+    public void resetar() { vid_base.resetar();}
     
     
     /* Função que atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     * (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
     * (ii) caso, ao calcular o input do usuário, o jogador não saia da tela do jogo. */
     public void update(long tempoAtual){
-             
+         
+        vid_base.updateInvencibilidade();
+
         /* condição (i) */
         if(ent_base.getEstado() == EXPLODING){
             if(tempoAtual > exp_base.getexplosaoFim()){
@@ -105,9 +116,7 @@ public class Jogador implements Colidivel{
 
      /* Função para desenhar a entidade Jogador e seus projéteis na tela */
     public void draw() {
-
-        ati_base.drawProjeteisJogador();
-
+      
         if (ent_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - exp_base.getexplosaoComeco()) / 
                         (double) (exp_base.getexplosaoFim() - exp_base.getexplosaoComeco());
@@ -116,6 +125,10 @@ public class Jogador implements Colidivel{
             GameLib.setColor(Color.BLUE);
             GameLib.drawPlayer(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
         }
+    
+        ati_base.drawProjeteisJogador();
+        vid_base.drawVidaJogador();
     }
+
 
 }

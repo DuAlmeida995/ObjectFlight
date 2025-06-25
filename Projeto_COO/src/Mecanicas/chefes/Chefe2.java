@@ -11,17 +11,23 @@ import Mecanicas.interfaces.*;
 
 import static Mecanicas.constantes.Estados.*;
 
-/* class Inimigo1
- * Classe que implementa a entidade de inimigo tipo 1 no jogo.
+/* class Chefe2
+ * Classe que implementa a entidade de chefe de tipo 2 no jogo.
 */
-public class Chefe1 implements EntidadeInimigo, Colidivel{
+public class Chefe2 implements EntidadeInimigo, Colidivel{
     private boolean descendo = true;
-    private int aumentou = 0;
+    private double posOriX = 0;
+    private double posOriY = 0;
+    private double posDestinoX = 0;
+    private double posDestinoY = 0;
+    private long tempoDeEspera = 0;
+    private int contadorDeMov = 0;
+    private boolean esperando = false;
 
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
-    VidaBase vid_base;
+    VidaBase vid_base;               /* Objeto que adminsitra as propriedades de 'Vida Base ' */
 
-    public Chefe1(Estados estados, double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
+    public Chefe2(Estados estados, double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
         vid_base = new VidaBase(vidaMaxima);
         entIni_base.setEstado(estados);
@@ -58,6 +64,9 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
     public boolean estaMorto() { return vid_base.estaMorto();}
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
 
+    public void esperar(long podeAvancar){
+
+    }
     /* Função que atualiza os atributos do inimigo de tipo 1 ao longo do tempo de jogo em duas condições:
     * (i) caso esse tenha explodido, torna-se inativo;
     * (ii) caso esse tenha ultrapassado os limites do jogo.
@@ -65,7 +74,7 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
     public void update(long delta, double posJogadorX, double posJogadorY) {
 
         vid_base.updateInvencibilidade();
-    
+
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
@@ -73,34 +82,54 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
             return;
         }
         
-        if(vid_base.getVidaAtual() == 50 && aumentou != 2) aumentou = 1;
-        if(aumentou == 1){
-            entIni_base.setV(entIni_base.getV() + 0.15);
-            aumentou = 2;
-        }
-
         if(entIni_base.getEstado() == ACTIVE){
             if(descendo){
                 double novoY = entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0);
-            
+        
                 if(novoY >= GameLib.HEIGHT/3){
                     novoY = GameLib.HEIGHT/3;
                     descendo = false;
-                    entIni_base.setAngulo(0);
+                    entIni_base.setAngulo(Math.PI/2);
                 }
 
                 entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
                 entIni_base.setY(novoY);
-            
+
+                posOriX = entIni_base.getX();
+                posOriY = entIni_base.getY();
+                posDestinoX = posJogadorX;
+                posDestinoY = posJogadorY;
+                
             }else{
-                entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
-                if (entIni_base.getX() - entIni_base.getRaio() <= 0){
-                    entIni_base.setX(entIni_base.getRaio());
-                    entIni_base.setAngulo(0);
-                }else if (entIni_base.getX() + entIni_base.getRaio() >= GameLib.WIDTH){
-                    entIni_base.setX(GameLib.WIDTH - entIni_base.getRaio());
-                    entIni_base.setAngulo(Math.PI);
-                }
+                if(esperando){
+                    if(System.currentTimeMillis() - tempoDeEspera >= 2000){
+                        esperando = false;
+                        contadorDeMov = 0;
+                        posDestinoX = posJogadorX;
+                        posDestinoY = posJogadorY;
+                    }
+                } else if(contadorDeMov < 3){
+                        double dx = posDestinoX - entIni_base.getX();
+                        double dy = posDestinoY - entIni_base.getY();
+                        entIni_base.setV(0.8);
+                        double distancia = Math.sqrt(dx * dx + dy * dy);
+
+                        if(distancia > entIni_base.getV()){
+                            entIni_base.setX(entIni_base.getX() + entIni_base.getV()*(dx/distancia));
+                            entIni_base.setY(entIni_base.getY() + entIni_base.getV()*(dy/distancia));
+                        }else{
+                            entIni_base.setX(posDestinoX);
+                            entIni_base.setY(posDestinoY);
+                            contadorDeMov ++;
+                            if(contadorDeMov < 3){
+                                posDestinoX = posJogadorX;
+                                posDestinoY = posJogadorY;    
+                            }else{
+                                tempoDeEspera = System.currentTimeMillis();
+                                esperando = true;
+                            }
+                        }
+                    }
             }
         }              
     }
@@ -113,9 +142,8 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
             GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
         } else if(entIni_base.getEstado() == ACTIVE) {
            if(descendo == false) vid_base.drawVidaChefe();
-            GameLib.setColor(Color.MAGENTA);
-            GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), (float)entIni_base.getRaio());
-
+            GameLib.setColor(Color.RED);
+            GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), entIni_base.getRaio());
         }
     }
 

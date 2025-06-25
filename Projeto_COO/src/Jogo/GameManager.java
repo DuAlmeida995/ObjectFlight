@@ -7,7 +7,7 @@ import static Mecanicas.constantes.Estados.ACTIVE;
 import static Mecanicas.constantes.Estados.INACTIVATE;
 
 import java.awt.Color;
-import Mecanicas.background.BackgroundEstrela;
+
 import Mecanicas.bases.AtiradorBase;
 import Mecanicas.chefes.Chefe1;
 import Mecanicas.interfaces.Colidivel;
@@ -16,6 +16,8 @@ import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
 import Mecanicas.powerups.*;
+import Mecanicas.background.BackgroundEstrela;
+
 
 
 
@@ -44,7 +46,7 @@ public class GameManager {
     private static final long ENEMY2_SPAWN_DELAY = 3000;
 
     private List<Invencibilidade> powerUps = new ArrayList<>();
-    private long proximoPowerUp = System.currentTimeMillis() + 10000;
+    private long proximoPowerUp = System.currentTimeMillis() + 1000;
 
     public GameManager() {
         this.running           = true;
@@ -133,7 +135,9 @@ public class GameManager {
                 }
             }
 
-            Iterator<Invencibilidade> itPU = powerUps.iterator();
+
+
+           /* Iterator<Invencibilidade> itPU = powerUps.iterator();
             while (itPU.hasNext()) {
                 Invencibilidade pu = itPU.next();
                 if (jogador.colideCom(pu)) {
@@ -141,7 +145,12 @@ public class GameManager {
                     pu.desativar();
                 }
 
-                if (!pu.isAtivo()) itPU.remove();
+                if (!pu.isAtivo()) itPU.remove(); */
+            }
+        for (Invencibilidade pu : powerUps) {
+            if (jogador.colideCom(pu)) {
+                jogador.ativarInvencibilidadePorPowerUp(10000); // 300 frames (~5s a 60fps)
+                pu.desativar();
             }
         }
     }
@@ -156,6 +165,15 @@ public class GameManager {
             spawnouChefe = true;
         }
 
+    }
+
+    private void spawnPowerUp(long tempoAtual) {
+        if (tempoAtual > proximoPowerUp) {
+            double x = Math.random() * (GameLib.WIDTH - 20) + 10;  // Posição X aleatória dentro da tela
+            double y = -10; // Spawnar acima da tela, para descer depois
+            powerUps.add(new Invencibilidade(x, y));
+            proximoPowerUp = tempoAtual + 1000; // Spawn a cada 15 segundos (ajuste como quiser)
+        }
     }
 
     private void spawnEnemies(long tempoAtual) {
@@ -184,6 +202,7 @@ public class GameManager {
 
     private void updateAll(long delta, long tempoAtual) {
         /* Verifica se inimigos devem nascer. */
+        spawnPowerUp(tempoAtual);
         if(!spawnouChefe) spawnEnemies(tempoAtual);
         spawnChefe(tempoAtual);
         /* Atualiza o fundo. */

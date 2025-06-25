@@ -25,16 +25,17 @@ public class Invencibilidade implements Colidivel {
 
     public void draw() {
         if (ativo) {
-            GameLib.setColor(Color.CYAN);
+            GameLib.setColor(Color.WHITE);
             GameLib.drawCircle(entidade.getX(), entidade.getY(), entidade.getRaio());
         }
     }
+
     @Override
-    public boolean colideCom(double px, double py, double raioJogador) {
-        double dx = entidade.getX() - px;
-        double dy = entidade.getY() - py;
+    public boolean colideCom(Colidivel outro) {
+        double dx = this.getX() - outro.getX();
+        double dy = this.getY() - outro.getY();
         double dist = Math.sqrt(dx * dx + dy * dy);
-        return ativo && dist < (entidade.getRaio() + raioJogador) * 0.8;
+        return ativo && dist < (this.getRaio() + outro.getRaio()) * 0.8;
     }
 
     public void desativar() { ativo = false; }

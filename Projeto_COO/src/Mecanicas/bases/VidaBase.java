@@ -3,6 +3,7 @@ package Mecanicas.bases;
 import java.awt.Color;
 
 import Jogo.GameLib;
+import Mecanicas.powerups.Invencibilidade;
 
 public class VidaBase {
     private int vidaMaxima;
@@ -45,6 +46,11 @@ public class VidaBase {
                 invencivel = false;
             }
         }
+    }
+
+    public void ativarInvencibilidadeTemporaria(int duracao) {
+        this.invencivel = true;
+        this.tempoInvencivel = duracao;
     }
 
     public void drawVidaJogador(){

@@ -15,6 +15,8 @@ import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
+import Mecanicas.powerups.*;
+
 
 
 public class GameManager {
@@ -40,6 +42,9 @@ public class GameManager {
 
     private static final long ENEMY1_SPAWN_DELAY = 500;   
     private static final long ENEMY2_SPAWN_DELAY = 3000;
+
+    private List<Invencibilidade> powerUps = new ArrayList<>();
+    private long proximoPowerUp = System.currentTimeMillis() + 10000;
 
     public GameManager() {
         this.running           = true;
@@ -127,6 +132,17 @@ public class GameManager {
                     }
                 }
             }
+
+            Iterator<Invencibilidade> itPU = powerUps.iterator();
+            while (itPU.hasNext()) {
+                Invencibilidade pu = itPU.next();
+                if (jogador.colideCom(pu)) {
+                    jogador.ativarInvencibilidadePorPowerUp(300); // 300 frames (~5s a 60fps)
+                    pu.desativar();
+                }
+
+                if (!pu.isAtivo()) itPU.remove();
+            }
         }
     }
 
@@ -184,6 +200,8 @@ public class GameManager {
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
 
+        for (Invencibilidade pu : powerUps) pu.update(delta);
+
         /* Remover inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
         while (it.hasNext()) {
@@ -226,6 +244,10 @@ public class GameManager {
             e.draw();
         }
         projeteisInimigos.drawProjeteisInimigo();
+
+        for (Invencibilidade pu : powerUps) {
+            pu.draw();
+        }
         
         jogador.draw();
         chefe1.draw();

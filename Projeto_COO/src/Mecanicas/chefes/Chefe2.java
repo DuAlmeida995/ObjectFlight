@@ -16,11 +16,11 @@ import static Mecanicas.constantes.Estados.*;
 */
 public class Chefe2 implements EntidadeInimigo, Colidivel{
     private boolean descendo = true;
-    private double posOriX = 0;
-    private double posOriY = 0;
+
     private double posDestinoX = 0;
     private double posDestinoY = 0;
     private long tempoDeEspera = 0;
+    private int quantDeMov = 3;
     private int contadorDeMov = 0;
     private boolean esperando = false;
 
@@ -95,23 +95,25 @@ public class Chefe2 implements EntidadeInimigo, Colidivel{
                 entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
                 entIni_base.setY(novoY);
 
-                posOriX = entIni_base.getX();
-                posOriY = entIni_base.getY();
                 posDestinoX = posJogadorX;
                 posDestinoY = posJogadorY;
                 
             }else{
+                if(vid_base.getVidaAtual() == 50) quantDeMov = 5;
+
+                entIni_base.setRaio(100 - vid_base.getVidaAtual()/2);
+                entIni_base.setV(1.1 - vid_base.getVidaAtual()/300);
+
                 if(esperando){
-                    if(System.currentTimeMillis() - tempoDeEspera >= 2000){
+                    if(System.currentTimeMillis() - tempoDeEspera >= 3000){
                         esperando = false;
                         contadorDeMov = 0;
                         posDestinoX = posJogadorX;
                         posDestinoY = posJogadorY;
                     }
-                } else if(contadorDeMov < 3){
+                } else if(contadorDeMov < quantDeMov){
                         double dx = posDestinoX - entIni_base.getX();
                         double dy = posDestinoY - entIni_base.getY();
-                        entIni_base.setV(0.8);
                         double distancia = Math.sqrt(dx * dx + dy * dy);
 
                         if(distancia > entIni_base.getV()){
@@ -121,7 +123,7 @@ public class Chefe2 implements EntidadeInimigo, Colidivel{
                             entIni_base.setX(posDestinoX);
                             entIni_base.setY(posDestinoY);
                             contadorDeMov ++;
-                            if(contadorDeMov < 3){
+                            if(contadorDeMov < quantDeMov){
                                 posDestinoX = posJogadorX;
                                 posDestinoY = posJogadorY;    
                             }else{
@@ -142,8 +144,13 @@ public class Chefe2 implements EntidadeInimigo, Colidivel{
             GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
         } else if(entIni_base.getEstado() == ACTIVE) {
            if(descendo == false) vid_base.drawVidaChefe();
-            GameLib.setColor(Color.RED);
+            GameLib.setColor(Color.ORANGE);
+            GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() - 30);
+            GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() + 30);
+            GameLib.drawCircle(entIni_base.getX() - 20, entIni_base.getY() - 20, entIni_base.getRaio()/8);
             GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), entIni_base.getRaio());
+            GameLib.setColor(Color.BLACK);
+            GameLib.fillRect(entIni_base.getX() + entIni_base.getRaio(), entIni_base.getY(), 14, 60);
         }
     }
 

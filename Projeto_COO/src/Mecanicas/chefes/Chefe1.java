@@ -17,6 +17,7 @@ import static Mecanicas.constantes.Estados.*;
 public class Chefe1 implements EntidadeInimigo, Colidivel{
     private boolean descendo = true;
     private int aumentou = 0;
+    private long tiroEspecial = 0;
 
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
     VidaBase vid_base;
@@ -52,7 +53,27 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
     /* Função que atualiza o estado do inimigo (ou projétil deste) quando este entra em contato com uma entidade colidível. */
     public void emColisao(){ entIni_base.emColisao();}
 
-    public void disparar(AtiradorBase projeteisInimgos, long tempoAtual){;}
+    public void disparar(AtiradorBase projeteisInimgos, long tempoAtual){
+        if(tempoAtual > entIni_base.getProximoTiro() && !descendo){
+            if(aumentou == 2){
+                if(tempoAtual > tiroEspecial){
+                    projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.25, Math.sin(3*(Math.PI/2)) * 0.25 * (-1.0), 30);
+                    tiroEspecial = tempoAtual + 2000;
+                }
+                double angulo = Math.PI/2 + Math.PI/8 + Math.random() * Math.PI/6 - Math.PI/12;
+                double vx1 = Math.cos(angulo) * 0.30;
+                double vy1 = Math.sin(angulo) * 0.30;
+                double vx2 = Math.cos(angulo/2) * 0.30;
+                double vy2 = Math.sin(angulo/2) * 0.30;
+                projeteisInimgos.disparar(entIni_base.getX() - 30, entIni_base.getY() + 7, vx1, vy1, 2);
+                projeteisInimgos.disparar(entIni_base.getX() + 30, entIni_base.getY() + 7, vx2, vy2, 2);
+                    
+            }else projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.45, Math.sin(3*(Math.PI/2)) * 0.45 * (-1.0), 2 );
+           
+            entIni_base.setProximoTiro( entIni_base.getProximoTiro() + 200);
+
+        }
+    }
 
     public void reduzir() { vid_base.reduzir();}
     public boolean estaMorto() { return vid_base.estaMorto();}
@@ -75,7 +96,7 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
         
         if(vid_base.getVidaAtual() == 50 && aumentou != 2) aumentou = 1;
         if(aumentou == 1){
-            entIni_base.setV(entIni_base.getV() + 0.15);
+            entIni_base.setV(entIni_base.getV() + 0.05);
             aumentou = 2;
         }
 
@@ -87,6 +108,7 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
                     novoY = GameLib.HEIGHT/3;
                     descendo = false;
                     entIni_base.setAngulo(0);
+                    entIni_base.setProximoTiro(System.currentTimeMillis());
                 }
 
                 entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
@@ -113,8 +135,29 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
             GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
         } else if(entIni_base.getEstado() == ACTIVE) {
            if(descendo == false) vid_base.drawVidaChefe();
-            GameLib.setColor(Color.MAGENTA);
-            GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), (float)entIni_base.getRaio());
+            GameLib.setColor(Color.LIGHT_GRAY);
+            GameLib.fillRect(entIni_base.getX(), entIni_base.getY()-10, entIni_base.getRaio()*2, 20);    
+            GameLib.fillRect(entIni_base.getX(), entIni_base.getY() - 25, entIni_base.getRaio(), 10);
+            GameLib.fillRect(entIni_base.getX(), entIni_base.getY() - 35, entIni_base.getRaio() - 20, 10);
+            GameLib.fillRect(entIni_base.getX() - 8, entIni_base.getY() - 45, 8, 10);
+            GameLib.fillRect(entIni_base.getX() + 8, entIni_base.getY() - 45, 8, 10);
+        
+            GameLib.fillRect(entIni_base.getX(), entIni_base.getY(), 20, 10);
+            GameLib.fillRect(entIni_base.getX() - 10,  entIni_base.getY() + 5, 8, 20);
+            GameLib.fillRect(entIni_base.getX() + 10, entIni_base.getY() + 5, 8,20);
+            GameLib.fillRect(entIni_base.getX() , entIni_base.getY() + 25, 20,20);
+            GameLib.fillRect(entIni_base.getX(), entIni_base.getY() + 35, 8, 15);
+        
+            GameLib.setColor(Color.DARK_GRAY);
+
+            GameLib.fillRect(entIni_base.getX() - 30, entIni_base.getY() + 7, 8, 15);
+            GameLib.fillRect(entIni_base.getX() + 30, entIni_base.getY() + 7, 8, 15);
+        
+            GameLib.setColor(Color.GRAY);
+
+            GameLib.fillRect(entIni_base.getX() - entIni_base.getRaio(), entIni_base.getY()-10, 15, 40);
+            GameLib.fillRect(entIni_base.getX() + entIni_base.getRaio(), entIni_base.getY()-10, 15, 40);
+
 
         }
     }

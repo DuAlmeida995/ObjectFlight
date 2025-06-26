@@ -24,7 +24,7 @@ public class GameManager {
     private Jogador jogador;
     private List<EntidadeInimigo> inimigos;
     //private Chefe1 chefe1;
-    private Chefe2 chefe2;
+    private Chefe1 chefe1;
     private AtiradorBase projeteisInimigos;
 
     private BackgroundEstrela fundo;
@@ -48,7 +48,7 @@ public class GameManager {
         this.jogador           = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, QUANT_VIDA_JOGADOR);
         this.inimigos          = new ArrayList<>();
         //this.chefe1            = new Chefe1(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
-        this.chefe2            = new Chefe2(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
+        this.chefe1            = new Chefe1(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
         this.projeteisInimigos = new AtiradorBase(tempoAtual + 500);
         this.fundo             = new BackgroundEstrela();
         this.nextSpawnEnemy1   = tempoAtual + 2000;
@@ -111,7 +111,7 @@ public class GameManager {
                 }
             }
             if(spawnouChefe){
-                if(jogador.colideCom(chefe2)){
+                if(jogador.colideCom(chefe1)){
                     jogador.reduzir();
                     if(jogador.estaMorto()){
                         jogador.emColisao();
@@ -130,11 +130,11 @@ public class GameManager {
                     }
                 }
             }
-            if(chefe2.getEstado() == ACTIVE && !chefe2.estaInvencivel()){
-                if(chefe2.colideCom(p)){
-                    chefe2.reduzir();
-                    if(chefe2.estaMorto()){
-                        chefe2.emColisao();
+            if(chefe1.getEstado() == ACTIVE && !chefe1.estaInvencivel()){
+                if(chefe1.colideCom(p)){
+                    chefe1.reduzir();
+                    if(chefe1.estaMorto()){
+                        chefe1.emColisao();
                     }
                 }
             }
@@ -147,7 +147,7 @@ public class GameManager {
 
     private void spawnChefe(long tempoAtual){
         if(tempoAtual > spawnChefe && !spawnouChefe){
-            chefe2.setEstado(ACTIVE);
+            chefe1.setEstado(ACTIVE);
             spawnouChefe = true;
         }
 
@@ -193,7 +193,8 @@ public class GameManager {
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
 
-        chefe2.update(delta, jogador.getX(), jogador.getY());
+        chefe1.update(delta, jogador.getX(), jogador.getY());
+        chefe1.disparar(projeteisInimigos, tempoAtual);
 
         /* Remover inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
@@ -239,7 +240,7 @@ public class GameManager {
         projeteisInimigos.drawProjeteisInimigo();
         
         jogador.draw();
-        chefe2.draw();
+        chefe1.draw();
 
         /* Apresenta o frame. */
         GameLib.display();

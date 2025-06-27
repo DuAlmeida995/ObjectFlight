@@ -30,6 +30,8 @@ public class Jogador implements Colidivel{
     ExplosaoBase exp_base;  /* Objeto para administrar as propriedades de 'Explosao' */
     MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
     VidaBase vid_base;      /* Objeto para administrar as propriedades de 'Vida' */
+    private boolean tiroTriploAtivo = false;
+    private long tempoFimTiroTriplo = 0;
 
     public Jogador(double x, double y, long tempoAtual, int vidaMaxima) {
         ent_base = new EntidadeBase(x,y,12); /* Raio -> 12 */ 
@@ -67,14 +69,36 @@ public class Jogador implements Colidivel{
     
     /* Função que faz com que o jogador atire um projétil, ativando a função de atirar
     * da classe ProjetilPool. */
-    public void atirar(long tempoAtual){
+   /* public void atirar(long tempoAtual){
         if(ati_base.podeAtirar(tempoAtual)){
             ati_base.disparar(ent_base.getX(), ent_base.getY() - ent_base.getRaio() * 2, 0.0, 
             -1.0, 0);
             ati_base.setProximoTiro(tempoAtual + 100);
         }
+    } */
+
+    public void atirar(long tempoAtual){
+        if(ati_base.podeAtirar(tempoAtual)){
+            //double x = getX();
+            //double y = getY() - getRaio() * 2;
+
+            // Tiro central
+            ati_base.disparar(ent_base.getX(), ent_base.getY() - ent_base.getRaio() * 2, 0.0, -1.0, 0);
+
+            if (tiroTriploAtivo) {
+                // Tiros laterais
+                ati_base.disparar(ent_base.getX(), ent_base.getY(), -0.2, -1.0, 0);
+                ati_base.disparar(ent_base.getX(), ent_base.getY(), 0.2, -1.0, 0);
+            }
+
+            ati_base.setProximoTiro(tempoAtual + 100);
+        }
     }
-        
+
+    public void ativarTiroTriplo(int duracao) {
+        tiroTriploAtivo = true;
+        tempoFimTiroTriplo = System.currentTimeMillis() + duracao;
+    }
     /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return ent_base.colideCom(outro);}
 

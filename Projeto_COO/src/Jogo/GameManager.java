@@ -9,7 +9,7 @@ import static Mecanicas.constantes.Estados.INACTIVATE;
 import java.awt.Color;
 import Mecanicas.background.BackgroundEstrela;
 import Mecanicas.bases.AtiradorBase;
-import Mecanicas.chefes.Chefe1;
+import Mecanicas.chefes.*;
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.jogador.*;
@@ -23,6 +23,7 @@ public class GameManager {
 
     private Jogador jogador;
     private List<EntidadeInimigo> inimigos;
+    //private Chefe1 chefe1;
     private Chefe1 chefe1;
     private AtiradorBase projeteisInimigos;
 
@@ -46,6 +47,7 @@ public class GameManager {
         this.tempoAtual        = System.currentTimeMillis();
         this.jogador           = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, QUANT_VIDA_JOGADOR);
         this.inimigos          = new ArrayList<>();
+        //this.chefe1            = new Chefe1(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
         this.chefe1            = new Chefe1(INACTIVATE, GameLib.WIDTH/2, -10.0, 0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, 100);
         this.projeteisInimigos = new AtiradorBase(tempoAtual + 500);
         this.fundo             = new BackgroundEstrela();
@@ -101,6 +103,15 @@ public class GameManager {
             /* Jogador x Projéteis inimigos */
             for (Projetil p : projeteisInimigos.getProjeteis()) {
                 if (jogador.colideCom(p)) {
+                    jogador.reduzir();
+                    if(jogador.estaMorto()){
+                        jogador.emColisao();
+                        jogador.resetar();
+                    }
+                }
+            }
+            if(spawnouChefe){
+                if(jogador.colideCom(chefe1)){
                     jogador.reduzir();
                     if(jogador.estaMorto()){
                         jogador.emColisao();
@@ -175,14 +186,15 @@ public class GameManager {
         /* Atualiza os inimigos. */
         projeteisInimigos.updateProjeteis(delta);
         for (EntidadeInimigo e : inimigos) {
-            e.update(delta);
+            e.update(delta, 0,0);
             e.disparar(projeteisInimigos, tempoAtual);
         }
-        chefe1.update(delta);
-
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
+
+        chefe1.update(delta, jogador.getX(), jogador.getY());
+        chefe1.disparar(projeteisInimigos, tempoAtual);
 
         /* Remover inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();

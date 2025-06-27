@@ -12,6 +12,7 @@ import Mecanicas.bases.MovimentoBase;
 import Mecanicas.bases.VidaBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.bases.AtiradorBase;
+import Mecanicas.powerups.*;
 
 import static Mecanicas.constantes.Estados.*;
 
@@ -88,8 +89,11 @@ public class Jogador implements Colidivel{
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
     public void reduzir() { vid_base.reduzir();}
     public void resetar() { vid_base.resetar();}
-    
-    
+
+    public void ativarInvencibilidadePorPowerUp(int duracao) {
+        vid_base.ativarInvencibilidadeTemporaria(duracao);
+    }
+
     /* Função que atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     * (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
     * (ii) caso, ao calcular o input do usuário, o jogador não saia da tela do jogo. */

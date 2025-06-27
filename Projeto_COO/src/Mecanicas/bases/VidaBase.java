@@ -3,6 +3,7 @@ package Mecanicas.bases;
 import java.awt.Color;
 
 import Jogo.GameLib;
+import Mecanicas.powerups.Invencibilidade;
 
 public class VidaBase {
     private int vidaMaxima;
@@ -10,7 +11,7 @@ public class VidaBase {
     private boolean invencivel = false; 
 
     private int tempoInvencivel = 0; 
-    private int DURACAO_INVENCIVEL = 60;
+    //private int DURACAO_INVENCIVEL = 60;
 
     public VidaBase(int vidaMaxima){
         this.vidaMaxima = vidaMaxima;
@@ -29,7 +30,7 @@ public class VidaBase {
 
     public void reduzir(){
         invencivel = true;
-        tempoInvencivel = DURACAO_INVENCIVEL;
+        tempoInvencivel = System.currentTimeMillis() + 1000;
         vidaAtual --;
         if(vidaAtual < 0) vidaAtual = 0;
     }
@@ -47,6 +48,11 @@ public class VidaBase {
         }
     }
 
+    public void ativarInvencibilidadeTemporaria(int duracao) {
+        this.invencivel = true;
+        this.tempoInvencivel = System.currentTimeMillis() + duracao;
+    }
+
     public void drawVidaJogador(){
         float porcent = (float) vidaAtual/vidaMaxima;
 
@@ -56,6 +62,11 @@ public class VidaBase {
         GameLib.setColor(Color.RED);
         GameLib.fillRect(30 + (100 * porcent)/2, GameLib.HEIGHT - 25, 100 * porcent, 20.0);
     }
+
+    public void updateInvencibilidade(){
+        if(invencivel && System.currentTimeMillis() > tempoFimInvencibilidade){
+            invencivel = false;
+        }
 
     public void drawVidaChefe(){
         float porcent = (float) vidaAtual/vidaMaxima;

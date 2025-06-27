@@ -7,7 +7,7 @@ import static Mecanicas.constantes.Estados.ACTIVE;
 import static Mecanicas.constantes.Estados.INACTIVATE;
 
 import java.awt.Color;
-import Mecanicas.background.BackgroundEstrela;
+
 import Mecanicas.bases.AtiradorBase;
 import Mecanicas.chefes.*;
 import Mecanicas.interfaces.Colidivel;
@@ -15,6 +15,10 @@ import Mecanicas.interfaces.EntidadeInimigo;
 import Mecanicas.jogador.*;
 import Mecanicas.projetil.*;
 import Mecanicas.inimigos.*;
+import Mecanicas.powerups.*;
+import Mecanicas.background.BackgroundEstrela;
+
+
 
 
 public class GameManager {
@@ -41,6 +45,9 @@ public class GameManager {
 
     private static final long ENEMY1_SPAWN_DELAY = 500;   
     private static final long ENEMY2_SPAWN_DELAY = 3000;
+
+    private List<Invencibilidade> powerUps = new ArrayList<>();
+    private long proximoPowerUp = System.currentTimeMillis() + 1000;
 
     public GameManager() {
         this.running           = true;
@@ -138,6 +145,13 @@ public class GameManager {
                     }
                 }
             }
+
+            }
+        for (Invencibilidade pu : powerUps) {
+            if (jogador.colideCom(pu)) {
+                jogador.ativarInvencibilidadePorPowerUp(10000); // 300 frames (~5s a 60fps)
+                pu.desativar();
+            }
         }
     }
 
@@ -151,6 +165,15 @@ public class GameManager {
             spawnouChefe = true;
         }
 
+    }
+
+    private void spawnPowerUp(long tempoAtual) {
+        if (tempoAtual > proximoPowerUp) {
+            double x = Math.random() * (GameLib.WIDTH - 20) + 10;  // Posição X aleatória dentro da tela
+            double y = -10; // Spawnar acima da tela, para descer depois
+            powerUps.add(new Invencibilidade(x, y));
+            proximoPowerUp = tempoAtual + 1000; // Spawn a cada 15 segundos (ajuste como quiser)
+        }
     }
 
     private void spawnEnemies(long tempoAtual) {
@@ -179,6 +202,7 @@ public class GameManager {
 
     private void updateAll(long delta, long tempoAtual) {
         /* Verifica se inimigos devem nascer. */
+        spawnPowerUp(tempoAtual);
         if(!spawnouChefe) spawnEnemies(tempoAtual);
         spawnChefe(tempoAtual);
         /* Atualiza o fundo. */
@@ -193,8 +217,11 @@ public class GameManager {
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
 
+
+        for (Invencibilidade pu : powerUps) pu.update(delta);
         chefe1.update(delta, jogador.getX(), jogador.getY());
         chefe1.disparar(projeteisInimigos, tempoAtual);
+
 
         /* Remover inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
@@ -238,6 +265,10 @@ public class GameManager {
             e.draw();
         }
         projeteisInimigos.drawProjeteisInimigo();
+
+        for (Invencibilidade pu : powerUps) {
+            pu.draw();
+        }
         
         jogador.draw();
         chefe1.draw();

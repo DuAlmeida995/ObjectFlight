@@ -74,7 +74,7 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
         * (i) caso esse tenha explodido, torna-se inativo;
         * (ii) caso esse tenha ultrapassado os limites do jogo.
            Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
-        public void update(long deltaTime) {
+        public void update(long deltaTime, double posJogadorX, double posJogadorY) {
 
                 if (entIni_base.getEstado() == EXPLODING) {
                         if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {

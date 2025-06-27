@@ -18,5 +18,5 @@ public interface EntidadeInimigo{
     public boolean colideCom(Colidivel outro);
     public void emColisao();
     public void draw();
-    public void update(long delta);
+    public void update(long delta, double posJogadorX, double posJogadorY);
 }

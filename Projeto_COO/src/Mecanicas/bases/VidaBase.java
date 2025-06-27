@@ -39,14 +39,14 @@ public class VidaBase {
         vidaAtual = vidaMaxima;
     }
 
-    public void updateInvencibilidade(){
+   /*  public void updateInvencibilidade(){
         if(invencivel){
             tempoInvencivel --;
             if(tempoInvencivel <= 0){
                 invencivel = false;
             }
         }
-    }
+    } */
 
     public void ativarInvencibilidadeTemporaria(int duracao) {
         this.invencivel = true;

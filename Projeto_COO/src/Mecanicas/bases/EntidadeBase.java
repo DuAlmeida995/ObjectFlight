@@ -1,5 +1,7 @@
 package Mecanicas.bases;
 
+import static Mecanicas.constantes.Estados.EXPLODING;
+
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
@@ -41,6 +43,12 @@ public class EntidadeBase{
         double dy = getY() - o.getY();
         double distancia = Math.hypot(dx, dy);
         return distancia < (getRaio() + o.getRaio()) * 0.8;
+    }
+
+    public void emExplosao(ExplosaoBase exp_base, long tempoExplosao){
+        this.estado = EXPLODING;
+        exp_base.setExplosaoComeco(System.currentTimeMillis());
+        exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + tempoExplosao);
     }
 
 }

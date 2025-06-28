@@ -3,7 +3,6 @@ package Mecanicas.bases;
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.powerups.Invencibilidade;
 
 public class VidaBase {
     private int vidaMaxima;
@@ -21,6 +20,8 @@ public class VidaBase {
     public int getVidaAtual() {
         return this.vidaAtual;
     }
+
+    public void setVidaMaxima(int vidaMaxima){ this.vidaMaxima = vidaMaxima;}
 
     public boolean estaMorto() {
         return vidaAtual == 0;

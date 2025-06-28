@@ -12,15 +12,16 @@ import Mecanicas.interfaces.*;
 import static Mecanicas.constantes.Estados.*;
 
 /* class Inimigo1
- * Classe que implementa a entidade de inimigo tipo 1 no jogo.
+ * Classe que implementa a entidade de chefe de tipo 1 no jogo.
 */
-public class Chefe1 implements EntidadeInimigo, Colidivel{
+public class Chefe1 implements Chefe, Colidivel{
+
+    EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
+    VidaBase vid_base;               /* Objeto para administrar as propriedades de 'Vida'           */
+
     private boolean descendo = true;
     private int aumentou = 0;
     private long tiroEspecial = 0;
-
-    EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
-    VidaBase vid_base;
 
     public Chefe1(Estados estados, double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
@@ -28,33 +29,45 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
         entIni_base.setEstado(estados);
     }
     
-    /* Funções getters e setters de posição e proximo tiro e um getter para estado, raio, ângulo.*/
+    /* Funções getters de posição e raio. */
 
     /* posição */
     public double getX(){ return entIni_base.getX();}
     public double getY(){ return entIni_base.getY();}
 
-    /* próximo tiro */
-    public long getProximoTiro() { return entIni_base.getProximoTiro();}
-    public void setProximoTiro(long proximoTiro) { entIni_base.setProximoTiro(proximoTiro);}
-    
     /* raio */
     public double getRaio() { return entIni_base.getRaio();}
 
-    /* ângulo */
-    public double getAngulo() { return entIni_base.getAngulo();}
+    /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
+     * 
+     * (1) Vida;
+     * (2) Colisão;
+     * (3) Atirar;
+     * (4) Atualização e desenho;
+     * 
+    */
 
-    /* estado */
-    public Estados getEstado(){ return entIni_base.getEstado();}
-    public void setEstado(Estados estados) { entIni_base.setEstado(estados);}
-    /* Função que calcula se uma entidade entra em colisão com outra. */
+    /* (1) funções básicas de controle da vida do Jogador. */
+
+    public void reduzir() { vid_base.reduzir();}
+    public boolean estaMorto() { return vid_base.estaMorto();}
+    public boolean estaInvencivel() { return vid_base.estaInvencivel();}
+
+
+    /* (2) funções de execução da lógica de colisão e eventual explosão do jogador. */
+
+    /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
-    /* Função que atualiza o estado do inimigo (ou projétil deste) quando este entra em contato com uma entidade colidível. */
-    public void emColisao(){ entIni_base.emColisao();}
+    /* atualiza os atributos do jogador caso este exploda. */
+    public void emColisao(){ entIni_base.emExplosao();}
+
+
+    /* (3) função que faz com que o Chefe1 atire um projétil ou projéteis (dado a vida atual), inserindo este(s) na 'pool' de projéteis de inimigos do jogo. */
 
     public void disparar(AtiradorBase projeteisInimgos, long tempoAtual){
         if(tempoAtual > entIni_base.getProximoTiro() && !descendo){
+            /* Caso o Chefe tenha reduzido a vida a 50, dispara um tiro especial na posição central e tiros normais nas laterais. */
             if(aumentou == 2){
                 if(tempoAtual > tiroEspecial){
                     projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.25, Math.sin(3*(Math.PI/2)) * 0.25 * (-1.0), 30);
@@ -67,40 +80,38 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
                 double vy2 = Math.sin(angulo/2) * 0.30;
                 projeteisInimgos.disparar(entIni_base.getX() - 30, entIni_base.getY() + 7, vx1, vy1, 2);
                 projeteisInimgos.disparar(entIni_base.getX() + 30, entIni_base.getY() + 7, vx2, vy2, 2);
-                    
-            }else projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.45, Math.sin(3*(Math.PI/2)) * 0.45 * (-1.0), 2 );
-           
+            }
+            /*Caso contrário, o Chefe atira normalmente na posição central. */
+            else projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.45, Math.sin(3*(Math.PI/2)) * 0.45 * (-1.0), 2 );
             entIni_base.setProximoTiro( entIni_base.getProximoTiro() + 200);
-
         }
     }
 
-    public void reduzir() { vid_base.reduzir();}
-    public boolean estaMorto() { return vid_base.estaMorto();}
-    public boolean estaInvencivel() { return vid_base.estaInvencivel();}
 
-    /* Função que atualiza os atributos do inimigo de tipo 1 ao longo do tempo de jogo em duas condições:
-    * (i) caso esse tenha explodido, torna-se inativo;
-    * (ii) caso esse tenha ultrapassado os limites do jogo.
-       Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
-    public void update(long delta, double posJogadorX, double posJogadorY) {
-
-        vid_base.updateInvencibilidade();
+    /* (4) funções de atualizações do Chefe1 e desenho (também de seus projéteis) ao longo do tempo de jogo. */
     
+    /* atualiza os atributos do Chefe1 ao longo do tempo de jogo em uma condição:
+    *  (i) caso esse tenha explodido, torna-se inativo;
+    *  Caso nenhuma dessas condições tenha sido alcançadas, o chefe é atualizado conforme sua lógica de movimento no jogo.
+    *  Além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe1 */
+    public void update(long delta, double posJogadorX, double posJogadorY) {
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
-        
+
+        /* Verifica se o Chefe teve a vida reduzida à 50 em algum momento do jogo. */
         if(vid_base.getVidaAtual() == 50 && aumentou != 2) aumentou = 1;
+        /* Caso o Chefe tenha tido sua vida reduzida à 50, aumenta a sua velocidade. */
         if(aumentou == 1){
             entIni_base.setV(entIni_base.getV() + 0.05);
             aumentou = 2;
         }
 
         if(entIni_base.getEstado() == ACTIVE){
+            /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
                 double novoY = entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0);
             
@@ -114,7 +125,9 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
                 entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
                 entIni_base.setY(novoY);
             
-            }else{
+            }
+            /* Ao alcançar a posição, se movimento indo de uma borda a outra da tela. */
+            else{
                 entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta); 
                 if (entIni_base.getX() - entIni_base.getRaio() <= 0){
                     entIni_base.setX(entIni_base.getRaio());
@@ -124,10 +137,12 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
                     entIni_base.setAngulo(Math.PI);
                 }
             }
-        }              
+        }
+
+        vid_base.updateInvencibilidade();       
     }
 
-    /* Função para desenhar a entidade inimigo tipo 1. */
+    /* desenha a entidade Chefe1. */
     public void draw() {
         if (entIni_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - entIni_base.getexplosaoComeco()) / 
@@ -157,10 +172,7 @@ public class Chefe1 implements EntidadeInimigo, Colidivel{
 
             GameLib.fillRect(entIni_base.getX() - entIni_base.getRaio(), entIni_base.getY()-10, 15, 40);
             GameLib.fillRect(entIni_base.getX() + entIni_base.getRaio(), entIni_base.getY()-10, 15, 40);
-
-
         }
     }
-
 }
 

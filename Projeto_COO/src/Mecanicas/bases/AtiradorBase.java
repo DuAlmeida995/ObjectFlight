@@ -27,7 +27,7 @@ public class AtiradorBase {
     public List<Projetil> getProjeteis(){ return pool.getProjeteis();}
     
     /* Função para verificar se a entidade pode atirar. */    
-    public boolean podeAtirar(long tempoAtual) {
+    public boolean podeDisparar(long tempoAtual) {
         return tempoAtual > proximoTiro;
     }
     

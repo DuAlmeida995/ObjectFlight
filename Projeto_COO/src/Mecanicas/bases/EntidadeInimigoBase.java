@@ -3,8 +3,6 @@ package Mecanicas.bases;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
-import static Mecanicas.constantes.Estados.*;
-
 /* class EntidadeInimigoBase
  * Classe que serve de base para as entidades de inimigo do jogo. 
 */
@@ -70,12 +68,6 @@ public class EntidadeInimigoBase implements Colidivel{
     public boolean colideCom(Colidivel outro){ return ent_base.colideCom(outro);}
 
     /* Função que atualiza o estado do inimigo quando este entra em contato com uma entidade colidível. */
-    public void emColisao() {
-        if (ent_base.getEstado() == ACTIVE) {
-                ent_base.setEstado(EXPLODING);
-                exp_base.setExplosaoComeco(System.currentTimeMillis());
-                exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + 500);
-        }
-    }
-
+    public void emExplosao() { ent_base.emExplosao(exp_base, 500);}
+ 
 }

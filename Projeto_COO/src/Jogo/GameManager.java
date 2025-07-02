@@ -10,7 +10,7 @@ import static Mecanicas.constantes.Estados.INACTIVATE;
 
 import java.awt.Color;
 
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.chefes.*;
 import Mecanicas.interfaces.*;
 import Mecanicas.jogador.*;
@@ -22,63 +22,93 @@ import Mecanicas.background.BackgroundEstrela;
 public class GameManager {
     private boolean running;
     private long tempoAtual;
-    private int faseAtual = 1;
-    private boolean chefeDerrotado = false;
+    private int faseAtual;
+    private int numFase;
+    private String [] fases;
+    private boolean chefeDerrotado;
 
     private Jogador jogador;
-    private List<EntidadeInimigo> inimigos;
+    private int vidaJogador;
+
     private Chefe chefe;
-    private AtiradorBase projeteisInimigos;
+    private DisparadorBase projeteisInimigos;
 
     private BackgroundEstrela fundo;
+    
+    private CarregadorJogo car_jogo;
     private CarregadorFase car_fase;
-
-    private final int QUANT_VIDA_JOGADOR = 5;
+    
+    
+    private List<EntidadeInimigo> inimigos;
 
     private long tempoSpawnInimigo1;
     private double posicaoXInimigo1;
     private double posicaoYInimigo1;
-    private static final long INIMIGO1_DELAY_SPAWN = 500;   
+    private long INIMIGO1_DELAY_SPAWN;   
 
     private long tempoSpawnInimigo2;
     private double posicaoXInimigo2;
     private double posicaoYInimigo2;
-    private static final long INIMIGO2_DELAY_SPAWN = 500;   
-    private int contadorInimigo2 = 0;
+    private long INIMIGO2_DELAY_SPAWN;   
+    private int contadorInimigo2;
 
     private int vidaMaximaChefe;
     private long tempoSpawnChefe; 
     private double posicaoXChefe;
     private double posicaoYChefe;
-    private boolean spawnouChefe = false;
+    private boolean spawnouChefe;
 
+    private List<Invencibilidade> powerUps;
+    private long proximoPowerUp;
+    private List<TiroTriplo> powerUpsTiroTriplo;  
+    private long proximoPowerUpTiroTriplo;          
 
-    private List<Invencibilidade> powerUps = new ArrayList<>();
-    private long proximoPowerUp = System.currentTimeMillis() + 1000;
-    private List<TiroTriplo> powerUpsTiroTriplo = new ArrayList<>();
-    private long proximoPowerUpTiroTriplo = System.currentTimeMillis() + 5000; // primeira vez em 15s
 
     public GameManager() {
-        this.running           = true;
-        this.tempoAtual        = System.currentTimeMillis();
-        this.jogador           = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, QUANT_VIDA_JOGADOR);
-        this.inimigos          = new ArrayList<>();
-        this.projeteisInimigos = new AtiradorBase(tempoAtual + 500);
-        this.fundo             = new BackgroundEstrela();
-        this.car_fase          = new CarregadorFase();
-    }
-
-    public void init() {
         GameLib.initGraphics();
-        carregarDadosdaFase("Configuracao/fase1.txt");
+
+        this.tempoAtual                = System.currentTimeMillis();
+        this.chefeDerrotado            = false;
+        this.spawnouChefe              = false;
+        this.INIMIGO1_DELAY_SPAWN      = 500;
+        this.INIMIGO2_DELAY_SPAWN      = 500;
+        this.contadorInimigo2          = 0;
+         
+        this.car_jogo                  = new CarregadorJogo();
+        this.car_fase                  = new CarregadorFase();
+
+        carregarJogo("Configuracao/jogo.txt");
+
+        this.running                   = true;
+        this.jogador                   = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, vidaJogador);
+        this.powerUps                  = new ArrayList<>();
+        this.proximoPowerUp            = System.currentTimeMillis() + 1000;
+        this.powerUpsTiroTriplo        = new ArrayList<>();
+        this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 5000;
+        this.inimigos                  = new ArrayList<>();
+        this.projeteisInimigos         = new DisparadorBase(tempoAtual + 500);
+        this.fundo                     = new BackgroundEstrela();      
     }
 
-    public void carregarDadosdaFase(String arquivo){
+    private void carregarJogo(String arquivo){
+        car_jogo.carregar(arquivo);
+        JogoInfo jogoInfo = car_jogo.getJogoInfo();
+        
+        vidaJogador = jogoInfo.getVidaJogador();
+        numFase     = jogoInfo.getNumFase();
+        faseAtual   = 1;
+        fases       = jogoInfo.getFases();
+
+        novaFase(faseAtual);
+
+    }
+
+    private void carregarDadosFase(String arquivo){
         car_fase.carregar(arquivo, tempoAtual);
-        ArrayList<SpawnInimigo> spawnInfo = car_fase.getSpawnInfo();
-        Iterator<SpawnInimigo> iterator = spawnInfo.iterator(); 
+        ArrayList<SpawnInfo> spawnInfo = car_fase.getSpawnInfo();
+        Iterator<SpawnInfo> iterator = spawnInfo.iterator(); 
         while (iterator.hasNext()) {
-            SpawnInimigo s = iterator.next();
+            SpawnInfo s = iterator.next();
             switch (s.getTipo()) {
                 case "INIMIGO 1":
                     this.tempoSpawnInimigo1 = s.getTempoSpawn();
@@ -105,13 +135,13 @@ public class GameManager {
         }
     }
 
-    public void novaFase(int numeroFase){
-        this.faseAtual = numeroFase;
-
+    private void novaFase(int numeroFase){
+        faseAtual = numeroFase;
         spawnouChefe = false;
         chefeDerrotado = false;
-        carregarDadosdaFase("Configuracao/fase" + faseAtual + ".txt");
+        carregarDadosFase(fases[faseAtual-1]);
     }
+
     /*                                                  
      * Loop do jogo que realiza quatro principais funções:
      * (1) detecta colisões do jogador com inimigos, do jogador com os projéteis do inimigo;
@@ -128,7 +158,7 @@ public class GameManager {
             long delta = System.currentTimeMillis() - tempoAtual;      
             tempoAtual = System.currentTimeMillis();
 
-            detectCollisions();
+            detectarColisoes();
             updateAll(delta,tempoAtual);
             handleInput(delta);
             renderAll();
@@ -140,35 +170,24 @@ public class GameManager {
 
     /* (1) Função que detecta possíveis colisões das Entidades colidíveis no jogo. */
 
-    private void detectCollisions() {
+    private void detectarColisoes() {
         if (jogador.getEstado() == ACTIVE && !jogador.estaInvencivel()) {
             /* Jogador x Inimigos */
             for (EntidadeInimigo e : inimigos) {
                 if (jogador.colideCom((Colidivel)e)) {
-                    jogador.reduzir();
-                    if(jogador.estaMorto()){
-                        jogador.emExplosao();
-                        jogador.resetar();
-                    }
+                    jogador.tomaDano();
                 }  
             }
             /* Jogador x Projéteis inimigos */
             for (Projetil p : projeteisInimigos.getProjeteis()) {
                 if (jogador.colideCom(p)) {
-                    jogador.reduzir();
-                    if(jogador.estaMorto()){
-                        jogador.emExplosao();
-                        jogador.resetar();
-                    }
+                    jogador.tomaDano();
                 }
             }
+
             if(spawnouChefe){
                 if(jogador.colideCom((Colidivel) chefe)){
-                    jogador.reduzir();
-                    if(jogador.estaMorto()){
-                        jogador.emExplosao();
-                        jogador.resetar();
-                    }
+                    jogador.tomaDano();
                 }
             }
         }
@@ -186,7 +205,6 @@ public class GameManager {
                     chefe.reduzir();
                     if(chefe.estaMorto()){
                         chefe.emColisao();
-                        chefeDerrotado = true;
                     }
                 }
             }
@@ -221,7 +239,6 @@ public class GameManager {
             double x = Math.random() * (GameLib.WIDTH - 20) + 10;
             double y = -10;
             powerUpsTiroTriplo.add(new TiroTriplo(x, y));
-
             proximoPowerUpTiroTriplo = tempoAtual + 30000; // novo spawn a cada 30s
         }
     }
@@ -244,19 +261,18 @@ public class GameManager {
                     tempoSpawnInimigo2 = (long) (tempoAtual + INIMIGO2_DELAY_SPAWN + Math.random() * 3000);        
                 }
             }
+
             if(tempoAtual > tempoSpawnChefe){
+                spawnouChefe = true;
+
                 if(faseAtual == 1){
-                    chefe = new Chefe1(ACTIVE, posicaoXChefe, posicaoYChefe *(-1.0),  0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, vidaMaximaChefe);
-                    spawnouChefe = true;
+                    chefe = new Chefe1(posicaoXChefe, posicaoYChefe *(-1.0),  0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, vidaMaximaChefe);
                 }
                 if(faseAtual == 2){
-                    chefe = new Chefe2(ACTIVE, posicaoXChefe, posicaoYChefe * (-1.0),  0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, vidaMaximaChefe);
-                    spawnouChefe = true;
+                    chefe = new Chefe2(posicaoXChefe, posicaoYChefe * (-1.0),  0.10 + Math.random() * 0.15, (3 * Math.PI) / 2, 50.0, 0.0, tempoAtual, vidaMaximaChefe);
                 }
             }
-
         }
-        
     }
 
     /* (2) Função que realiza a atualização dos estados das Entidades do jogo, como a posição do 
@@ -287,10 +303,12 @@ public class GameManager {
         if(spawnouChefe){
             chefe.update(delta, jogador.getX(), jogador.getY());
             chefe.disparar(projeteisInimigos, tempoAtual);
+            if(chefe.getEstados() == INACTIVATE){
+                chefeDerrotado = true;
+            }
         }
 
-        if(chefeDerrotado && faseAtual <= 2){
-            
+        if(chefeDerrotado && faseAtual < numFase){   
             novaFase(faseAtual+1);
         }
 
@@ -301,7 +319,7 @@ public class GameManager {
         while (it.hasNext()) {
             EntidadeInimigo e = it.next();
             if (e.getEstado() == INACTIVATE) it.remove();
-        }
+        }    
     }
 
     /* (3) Função que realiza a captura dos comados inseridos no teclado pelo usuário, atualizando assim
@@ -340,7 +358,6 @@ public class GameManager {
         jogador.draw();
         if(spawnouChefe) chefe.draw();
         for (TiroTriplo puT : powerUpsTiroTriplo) puT.draw();
-
         /* Apresenta o frame. */
         GameLib.display();
     }

@@ -3,7 +3,7 @@ package Mecanicas.chefes;
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.bases.VidaBase;
 import Mecanicas.constantes.Estados;
@@ -24,17 +24,17 @@ public class Chefe2 implements Chefe, Colidivel{
     private double posDestinoX = 0;
     private double posDestinoY = 0;
     private long tempoDeEspera = 0;
-    private int quantDeMov = 3;
-    private int contadorDeMov = 0;
-    private boolean esperando = false;
+    private int quantDeMov     = 3;
+    private int contadorDeMov  = 0;
+    private boolean esperando  = false;
 
-    public Chefe2(Estados estados, double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
+    public Chefe2(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
         vid_base = new VidaBase(vidaMaxima);
-        entIni_base.setEstado(estados);
+        entIni_base.setEstado(ACTIVE);
     }
     
-    /* Funções getters de posição e raio. */
+    /* Funções getters de posição, raio e estado. */
 
     /* posição */
     public double getX(){ return entIni_base.getX();}
@@ -43,7 +43,10 @@ public class Chefe2 implements Chefe, Colidivel{
     /* raio */
     public double getRaio() { return entIni_base.getRaio();}
 
-    /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
+    /* estado */
+    public Estados getEstados(){ return entIni_base.getEstado();}
+
+    /* ------------------------------------------------------------- Mecânicas do Chefe2 ------------------------------------------------------------- 
      * 
      * (1) Vida;
      * (2) Colisão;
@@ -83,6 +86,8 @@ public class Chefe2 implements Chefe, Colidivel{
         }
         
         if(entIni_base.getEstado() == ACTIVE){
+            vid_base.updateInvencibilidade();
+
             /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
                 double novoY = entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0);
@@ -105,11 +110,11 @@ public class Chefe2 implements Chefe, Colidivel{
              * o número de tentativas aumenta para 5.*/
             else{
                 /* Aumento das tentativas de movimentos. */
-                if(vid_base.getVidaAtual() == 50) quantDeMov = 5;
+                if(vid_base.getVidaAtual() == vid_base.getVidaMaxima()/2) quantDeMov = 5;
 
                 /* Conforme o Chefe2 toma dano, ele aumenta seu tamanho e sua velocidade. */
-                entIni_base.setRaio(100 - vid_base.getVidaAtual()/2);
-                entIni_base.setV(1.1 - vid_base.getVidaAtual()/300);
+                entIni_base.setRaio(vid_base.getVidaMaxima() - vid_base.getVidaAtual()/2);
+                entIni_base.setV(1.1 - (double)(vid_base.getVidaAtual()/(vid_base.getVidaMaxima()*3)));
 
                 /*Tempo de espera entre as sequências de perseguições. */
                 if(esperando){
@@ -143,23 +148,22 @@ public class Chefe2 implements Chefe, Colidivel{
                     }
             }   
         }  
-        
-        vid_base.updateInvencibilidade();
-
     }
 
-    /* Função para desenhar a entidade inimigo tipo 1. */
+    /* desenha a entidade Chefe2. */
     public void draw() {
         if (entIni_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - entIni_base.getexplosaoComeco()) / 
                         (double) (entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());
             GameLib.drawExplosion(entIni_base.getX(), entIni_base.getY(), alpha);
+
         } else if(entIni_base.getEstado() == ACTIVE) {
-           if(descendo == false) vid_base.drawVidaChefe();
+            if(descendo == false) vid_base.drawVidaChefe();
+
             GameLib.setColor(Color.ORANGE);
             GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() - 30);
             GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() + 30);
-            GameLib.drawCircle(entIni_base.getX() - 20, entIni_base.getY() - 20, entIni_base.getRaio()/8);
+            GameLib.drawCircle(entIni_base.getX() - 20 , entIni_base.getY() - 20 , entIni_base.getRaio()/8);
             GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), entIni_base.getRaio());
             GameLib.setColor(Color.BLACK);
             GameLib.fillRect(entIni_base.getX() + entIni_base.getRaio(), entIni_base.getY(), 14, 60);
@@ -167,7 +171,7 @@ public class Chefe2 implements Chefe, Colidivel{
     }
 
     /* Implementação vazia da função disparar afim de cumprir com a interface 'Chefe'. O Chefe2 não realiza disparos */
-    public void disparar(AtiradorBase projeteisInimgos, long tempoAtual){;}
+    public void disparar(DisparadorBase projeteisInimgos, long tempoAtual){;}
 
 }
 

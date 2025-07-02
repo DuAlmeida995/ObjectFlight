@@ -7,12 +7,12 @@ import Mecanicas.projetil.*;
  * Classe que serve de base a funcionalidade de disparo das entidades do jogo.
 */
 
-public class AtiradorBase {
+public class DisparadorBase {
 
     private long proximoTiro;  /* Cadência dos disparos */
     private ProjetilPool pool; /* Objeto para administrar os projéteis da entidade */
 
-    public AtiradorBase(long proximoTiro){
+    public DisparadorBase(long proximoTiro){
         this.pool = new ProjetilPool();
         this.proximoTiro = proximoTiro;
     }

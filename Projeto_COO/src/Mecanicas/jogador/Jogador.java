@@ -9,8 +9,7 @@ import Mecanicas.bases.EntidadeBase;
 import Mecanicas.bases.ExplosaoBase;
 import Mecanicas.bases.MovimentoBase;
 import Mecanicas.bases.VidaBase;
-import Mecanicas.bases.AtiradorBase;
-
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.constantes.Estados;
 import static Mecanicas.constantes.Estados.*;
 
@@ -24,20 +23,20 @@ import Mecanicas.projetil.*;
 
 public class Jogador implements Colidivel{
 
-    AtiradorBase ati_base;  /* Objeto para administrar as propriedades de 'Atirador'  */
+    DisparadorBase ati_base;  /* Objeto para administrar as propriedades de 'Atirador'  */
     EntidadeBase ent_base;  /* Objeto para administrar as propriedades de 'Entidade'  */
     ExplosaoBase exp_base;  /* Objeto para administrar as propriedades de 'Explosao'  */
     MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
     VidaBase vid_base;      /* Objeto para administrar as propriedades de 'Vida'      */
     
     private boolean tiroTriploAtivo = false;
-    private long tempoFimTiroTriplo = 0;
+    private long tempoFimTiroTriplo;
 
     public Jogador(double x, double y, long tempoAtual, int vidaMaxima) {
-        ent_base = new EntidadeBase(x,y,12); /* Raio -> 12 */ 
-        mov_base = new MovimentoBase(0.25, 0.25); /* Velocidade no eixo X e eixo Y -> 0.25 */
+        ent_base = new EntidadeBase(x,y,12);                      /* Raio -> 12 */ 
+        mov_base = new MovimentoBase(0.25, 0.25);                /* Velocidade no eixo X e eixo Y -> 0.25 */
         exp_base = new ExplosaoBase(0, 0);
-        ati_base = new AtiradorBase(tempoAtual + 100); /* Cadência dos disparos dos projéteis de 100 ms */
+        ati_base = new DisparadorBase(tempoAtual + 100);                 /* Cadência dos disparos dos projéteis de 100 ms */
         vid_base = new VidaBase(vidaMaxima);
     }
 
@@ -76,9 +75,14 @@ public class Jogador implements Colidivel{
 
     public boolean estaMorto() { return vid_base.estaMorto();}
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
-    public void reduzir() { vid_base.reduzir();}
-    public void resetar() { vid_base.resetar();}
 
+    public void tomaDano(){
+        vid_base.reduzir();
+        if(vid_base.estaMorto()){
+            emExplosao();
+            vid_base.resetar();
+        }
+    }
 
     /* (2) funções de ativações dos power up's de: Invencibilidade e TiroTriplo */
 

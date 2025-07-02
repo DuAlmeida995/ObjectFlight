@@ -1,6 +1,6 @@
 package Jogo.carregadores;
 
-public class SpawnInimigo {
+public class SpawnInfo {
     
     String tipo;
     int vidaMaxima;
@@ -8,7 +8,7 @@ public class SpawnInimigo {
     double posicaoX;
     double posicaoY;
 
-    public SpawnInimigo(String tipo, int vidaMaxima, long TempoSpawn, double posicaoX, double posicaoY){
+    public SpawnInfo(String tipo, int vidaMaxima, long TempoSpawn, double posicaoX, double posicaoY){
         this.tipo = tipo;
         this.vidaMaxima = vidaMaxima;
         this.tempoSpawn = TempoSpawn;

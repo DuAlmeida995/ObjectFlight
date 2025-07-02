@@ -5,7 +5,7 @@ import java.util.*;
 
 
 public class CarregadorFase {
-    private ArrayList<SpawnInimigo> spawnInfo = new ArrayList<>();
+    private ArrayList<SpawnInfo> spawnInfo = new ArrayList<>();
 
     public CarregadorFase(){
     }
@@ -22,16 +22,16 @@ public class CarregadorFase {
             String tipo = dados[0];
             switch (tipo) {
                 case "INIMIGO":
-                    spawnInfo.add(new SpawnInimigo(tipo + " " + dados[1], 0, Long.parseLong(dados[2]) + tempoAtual , Double.parseDouble(dados[3]), Double.parseDouble(dados[4])));    
+                    spawnInfo.add(new SpawnInfo(tipo + " " + dados[1], 0, Long.parseLong(dados[2]) + tempoAtual , Double.parseDouble(dados[3]), Double.parseDouble(dados[4])));    
                     break;    
                 case "CHEFE":
-                    spawnInfo.add(new SpawnInimigo(tipo, Integer.parseInt(dados[2]), Long.parseLong(dados[3]) + tempoAtual, Double.parseDouble(dados[4]), Double.parseDouble(dados[5])));
+                    spawnInfo.add(new SpawnInfo(tipo, Integer.parseInt(dados[2]), Long.parseLong(dados[3]) + tempoAtual, Double.parseDouble(dados[4]), Double.parseDouble(dados[5])));
                     break;
                 default:
                     break;
             }
         }
-
+        
         br.close();
     }
 
@@ -44,7 +44,7 @@ public class CarregadorFase {
         }
     }
 
-    public ArrayList<SpawnInimigo> getSpawnInfo(){
+    public ArrayList<SpawnInfo> getSpawnInfo(){
         return this.spawnInfo;
     }
 

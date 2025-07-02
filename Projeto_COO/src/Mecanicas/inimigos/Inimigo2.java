@@ -3,7 +3,7 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
@@ -64,7 +64,7 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
         return false;
     }
 
-    public void disparar(AtiradorBase projeteisInimigos, long tempoAtual){
+    public void disparar(DisparadorBase projeteisInimigos, long tempoAtual){
         if (deveDisparar()) {
             /* Dispara 3 projéteis em um formato de leque */
             double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };

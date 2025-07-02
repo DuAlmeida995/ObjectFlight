@@ -1,6 +1,6 @@
 package Mecanicas.interfaces;
 
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.constantes.Estados;
 
 /* inferface EntidadeInimigo 
@@ -11,7 +11,7 @@ public interface EntidadeInimigo{
     public Estados getEstado();
     public double getX();
     public double getY();
-    public void disparar(AtiradorBase projeteisInimigos, long tempoAtual);
+    public void disparar(DisparadorBase projeteisInimigos, long tempoAtual);
     public boolean colideCom(Colidivel outro);
     public void emColisao();
     public void draw();

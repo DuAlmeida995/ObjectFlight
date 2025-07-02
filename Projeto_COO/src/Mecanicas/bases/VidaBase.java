@@ -17,9 +17,9 @@ public class VidaBase {
         this.vidaAtual = vidaMaxima;
     }
 
-    public int getVidaAtual() {
-        return this.vidaAtual;
-    }
+    public int getVidaAtual() { return this.vidaAtual;}
+
+    public int getVidaMaxima(){ return this.vidaMaxima;}
 
     public void setVidaMaxima(int vidaMaxima){ this.vidaMaxima = vidaMaxima;}
 
@@ -72,15 +72,15 @@ public class VidaBase {
         }
     }
 
-        public void drawVidaChefe () {
-            float porcent = (float) vidaAtual / vidaMaxima;
+    public void drawVidaChefe () {
+        float porcent = (float) vidaAtual / vidaMaxima;
 
-            GameLib.setColor(Color.gray);
-            GameLib.fillRect(240, 130, 360.0, 20.0);
+        GameLib.setColor(Color.gray);
+        GameLib.fillRect(240, 130, 360.0, 20.0);
 
-            GameLib.setColor(Color.YELLOW);
-            GameLib.fillRect(60 + (360 * porcent) / 2, 130, 360 * porcent, 20.0);
-        }
+        GameLib.setColor(Color.YELLOW);
+        GameLib.fillRect(60 + (360 * porcent) / 2, 130, 360 * porcent, 20.0);
+    }
 
 
 }

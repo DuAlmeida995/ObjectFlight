@@ -3,7 +3,7 @@ package Mecanicas.chefes; // aaa
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.bases.VidaBase;
 import Mecanicas.constantes.Estados;
@@ -23,13 +23,13 @@ public class Chefe1 implements Chefe, Colidivel{
     private int aumentou = 0;
     private long tiroEspecial = 0;
 
-    public Chefe1(Estados estados, double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
+    public Chefe1(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
         vid_base = new VidaBase(vidaMaxima);
-        entIni_base.setEstado(estados);
+        entIni_base.setEstado(ACTIVE);
     }
     
-    /* Funções getters de posição e raio. */
+    /* Funções getters de posição, raio e estado. */
 
     /* posição */
     public double getX(){ return entIni_base.getX();}
@@ -38,7 +38,10 @@ public class Chefe1 implements Chefe, Colidivel{
     /* raio */
     public double getRaio() { return entIni_base.getRaio();}
 
-    /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
+    /* estado */
+    public Estados getEstados(){ return entIni_base.getEstado();}
+
+    /* ------------------------------------------------------------- Mecânicas do Chefe1 ------------------------------------------------------------- 
      * 
      * (1) Vida;
      * (2) Colisão;
@@ -65,7 +68,7 @@ public class Chefe1 implements Chefe, Colidivel{
 
     /* (3) função que faz com que o Chefe1 atire um projétil ou projéteis (dado a vida atual), inserindo este(s) na 'pool' de projéteis de inimigos do jogo. */
 
-    public void disparar(AtiradorBase projeteisInimgos, long tempoAtual){
+    public void disparar(DisparadorBase projeteisInimgos, long tempoAtual){
         if(tempoAtual > entIni_base.getProximoTiro() && !descendo){
             /* Caso o Chefe tenha reduzido a vida a 50, dispara um tiro especial na posição central e tiros normais nas laterais. */
             if(aumentou == 2){
@@ -102,8 +105,8 @@ public class Chefe1 implements Chefe, Colidivel{
             return;
         }
 
-        /* Verifica se o Chefe teve a vida reduzida à 50 em algum momento do jogo. */
-        if(vid_base.getVidaAtual() == 50 && aumentou != 2) aumentou = 1;
+        /* Verifica se o Chefe teve a vida reduzida à metade de sua vida em algum momento do jogo. */
+        if(vid_base.getVidaAtual() == vid_base.getVidaMaxima()/2 && aumentou != 2) aumentou = 1;
         /* Caso o Chefe tenha tido sua vida reduzida à 50, aumenta a sua velocidade. */
         if(aumentou == 1){
             entIni_base.setV(entIni_base.getV() + 0.05);
@@ -111,6 +114,8 @@ public class Chefe1 implements Chefe, Colidivel{
         }
 
         if(entIni_base.getEstado() == ACTIVE){
+            vid_base.updateInvencibilidade();       
+
             /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
                 double novoY = entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0);
@@ -138,8 +143,6 @@ public class Chefe1 implements Chefe, Colidivel{
                 }
             }
         }
-
-        vid_base.updateInvencibilidade();       
     }
 
     /* desenha a entidade Chefe1. */

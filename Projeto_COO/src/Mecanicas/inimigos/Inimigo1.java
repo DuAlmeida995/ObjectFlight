@@ -3,7 +3,7 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
-import Mecanicas.bases.AtiradorBase;
+import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.*;
@@ -52,7 +52,7 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
 
     /* (2) função que faz com que o Inimigo1 atire um projétil, inserindo este na 'pool' de projéteis de inimigos do jogo. */
 
-    public void disparar(AtiradorBase projeteisInimigos, long tempoAtual){
+    public void disparar(DisparadorBase projeteisInimigos, long tempoAtual){
         if (tempoAtual > entIni_base.getProximoTiro() && entIni_base.getEstado() == ACTIVE) {
             projeteisInimigos.disparar(entIni_base.getX(), entIni_base.getY(), Math.cos(entIni_base.getAngulo()) * 0.45, Math.sin(entIni_base.getAngulo()) * 0.45 * (-1.0), 2.0);
             entIni_base.setProximoTiro(tempoAtual + 200 + (long)(Math.random() * 500));

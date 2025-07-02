@@ -11,14 +11,14 @@ public class EntidadeInimigoBase implements Colidivel{
 
     EntidadeBase ent_base; /* Objeto para administrar as propriedades de 'Entidade' */
     ExplosaoBase exp_base; /* Objeto para administrar as propriedades de 'Explosao' */
-    AtiradorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador' */
+    DisparadorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador' */
 
     double angulo, v, vr; /* Ângulo, velocidade e velocidade de rotação */
 
     public EntidadeInimigoBase(double x, double y, double v, double angulo, double raio, double vr, long proximoTiro){
         ent_base = new EntidadeBase(x, y, raio);
         exp_base = new ExplosaoBase(0, 0); 
-        ati_base = new AtiradorBase(proximoTiro);
+        ati_base = new DisparadorBase(proximoTiro);
         this.v = v;
         this.angulo = angulo;
         this.vr = vr;

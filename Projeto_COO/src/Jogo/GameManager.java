@@ -229,23 +229,17 @@ public class GameManager {
      * elemento na tela e o spawn de inimigos e powerups.
     */
 
-    private void spawnInvencibilidade(long tempoAtual) {
-        if (tempoAtual > proximoPowerUp) {
-            double x = Math.random() * (GameLib.WIDTH - 20) + 10;  // Posição X aleatória dentro da tela
-            double y = -10; // Spawnar acima da tela, para descer depois
-            powerUPs.add(new Invencibilidade(x, y));
-            proximoPowerUp = tempoAtual + 15000; // Spawn a cada 15 segundos (ajuste como quiser)
+    private void spawnPowerUP(long tempoAtual){
+        if(tempoAtual > proximoPowerUp) {
+            powerUPs.add(new Invencibilidade(Math.random() * (GameLib.WIDTH - 20) + 10, -10));
+            proximoPowerUp = tempoAtual + 15000;
+        }
+        if(tempoAtual > proximoPowerUpTiroTriplo) {
+            powerUPs.add(new TiroTriplo(Math.random() * (GameLib.WIDTH - 20) + 10, -10));
+            proximoPowerUpTiroTriplo = tempoAtual + 15000;
         }
     }
 
-    private void spawnPowerUpTiroTriplo(long tempoAtual) {
-        if (tempoAtual > proximoPowerUpTiroTriplo) {
-            double x = Math.random() * (GameLib.WIDTH - 20) + 10;
-            double y = -10;
-            powerUPs.add(new TiroTriplo(x, y));
-            proximoPowerUpTiroTriplo = tempoAtual + 15000; // novo spawn a cada 30s
-        }
-    }
 
     private void gerenciarSpawns(long tempoAtual){
         if(!spawnouChefe){
@@ -281,11 +275,8 @@ public class GameManager {
 
     private void updateAll(long delta, long tempoAtual) {
         /* verifica se inimigos devem nascer. */
-        spawnInvencibilidade(tempoAtual);
-        spawnPowerUpTiroTriplo(tempoAtual);
+        spawnPowerUP(tempoAtual);
         gerenciarSpawns(tempoAtual);
-        
-        
         /* atualiza o fundo. */
         fundo.update(delta);
         /* atualiza os inimigos. */

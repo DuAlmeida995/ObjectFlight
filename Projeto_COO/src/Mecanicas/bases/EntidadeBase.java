@@ -5,7 +5,7 @@ import static Mecanicas.constantes.Estados.EXPLODING;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
-/* class EntidadeBase
+/* classe EntidadeBase
  * Classe que serve de base para as demais entidades do jogo. 
 */
 

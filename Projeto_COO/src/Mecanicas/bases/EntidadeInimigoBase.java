@@ -3,15 +3,15 @@ package Mecanicas.bases;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
 
-/* class EntidadeInimigoBase
+/* classe EntidadeInimigoBase
  * Classe que serve de base para as entidades de inimigo do jogo. 
 */
 
 public class EntidadeInimigoBase implements Colidivel{
 
-    EntidadeBase ent_base;   /* Objeto para administrar as propriedades de 'Entidade' */
-    ExplosaoBase exp_base;   /* Objeto para administrar as propriedades de 'Explosao' */
-    DisparadorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador' */
+    private EntidadeBase ent_base;   /* Objeto para administrar as propriedades de 'Entidade' */
+    private ExplosaoBase exp_base;   /* Objeto para administrar as propriedades de 'Explosao' */
+    private DisparadorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador' */
 
     double angulo, v, vr;    /* Ângulo, velocidade e velocidade de rotação */
 
@@ -24,13 +24,12 @@ public class EntidadeInimigoBase implements Colidivel{
         this.vr = vr;
     }  
 
-    /* Funções getters e setters para a posição, raio, velocidade, ângulo, velocidade de 
-    rotação, estado da entidade e atributos de explosão. */
+    /* Funções getters e setters para a posição, raio, velocidade, ângulo, velocidade de rotação, estado da entidade e atributos de explosão. */
    
     /* posição */
     public double getX() { return ent_base.getX();}
-    public void setX(double x) {ent_base.setX(x);}
     public double getY() { return ent_base.getY();}
+    public void setX(double x) {ent_base.setX(x);}
     public void setY(double y) {ent_base.setY(y);}
     
     /* raio */
@@ -55,8 +54,8 @@ public class EntidadeInimigoBase implements Colidivel{
 
     /* atributos de explosão */
     public double getexplosaoComeco() { return exp_base.getexplosaoComeco();}
-    public void setExplosaoComeco(double explosaoComeco) { exp_base.setExplosaoComeco(explosaoComeco);}
     public double getexplosaoFim() { return exp_base.getexplosaoFim();}
+    public void setExplosaoComeco(double explosaoComeco) { exp_base.setExplosaoComeco(explosaoComeco);}
     public void setExplosaoFim(double explosaoFim) { exp_base.setExplosaoFim(explosaoFim);}
 
     /* atributos de atirador */
@@ -64,10 +63,19 @@ public class EntidadeInimigoBase implements Colidivel{
     public long getProximoTiro() { return ati_base.getProximoTiro();}
     public void setProximoTiro(long proximoTiro) { ati_base.setProximoTiro(proximoTiro);}
 
-    /* Função que calcula se uma entidade entra em colisão com outra. */
+
+    /* ------------------------------------------------------------- Mecânicas da EntidadeBase ------------------------------------------------------------- 
+     * 
+     * (1) Colisão.
+     *  
+    */
+
+    
+    /* (1) funções bases de gerenciamento de colisões e entrada no estado de explosão para todas as entidades do jogo. */
+    
+    /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return ent_base.colideCom(outro);}
 
-    /* Função que atualiza o estado do inimigo quando este entra em contato com uma entidade colidível. */
+    /* atualiza os atributos das entidades, entrando em estado de explosão. */
     public void emExplosao() { ent_base.emExplosao(exp_base, 500);}
- 
 }

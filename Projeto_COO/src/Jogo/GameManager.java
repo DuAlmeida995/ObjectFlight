@@ -1,23 +1,29 @@
 package Jogo;
+
+import java.awt.Color;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import Jogo.carregadores.*;
-
-import static Mecanicas.constantes.Estados.ACTIVE;
-import static Mecanicas.constantes.Estados.INACTIVATE;
-
-import java.awt.Color;
+import Mecanicas.background.BackgroundEstrela;
 
 import Mecanicas.bases.DisparadorBase;
+
+import Jogo.carregadores.*;
+
 import Mecanicas.chefes.*;
-import Mecanicas.interfaces.*;
-import Mecanicas.jogador.*;
-import Mecanicas.projetil.*;
+
+import static Mecanicas.constantes.Estados.*;
 import Mecanicas.inimigos.*;
+
+import Mecanicas.interfaces.*;
+
+import Mecanicas.jogador.*;
+
+import Mecanicas.projetil.*;
+
 import Mecanicas.powerups.*;
-import Mecanicas.background.BackgroundEstrela;
 
 public class GameManager {
     private boolean running;
@@ -37,7 +43,6 @@ public class GameManager {
     
     private CarregadorJogo car_jogo;
     private CarregadorFase car_fase;
-    
     
     private List<EntidadeInimigo> inimigos;
 

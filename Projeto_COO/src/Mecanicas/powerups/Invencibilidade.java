@@ -13,14 +13,14 @@ import Mecanicas.jogador.Jogador;
 import static Mecanicas.constantes.Estados.*;
 
 /* classe Invencibilidade
- *  Classe que serve para gerenciar o powerup de tiro triplo no jogador, fazendo-o atirar três projéteis em formato de leque por um determinado tempo.     
+ *  Classe que serve para gerenciar o powerup de invencibilidade no jogador, tornando-o invencibilidade por um determinado tempo.     
 */
 
 public class Invencibilidade implements Colidivel, PowerUp {
 
     private PowerUpBase pow_base;   /* Objeto para administrar as propriedades de 'Entidade'  */
     
-    private Jogador jogador;         /* Referência para o objeto jogador dentro do jogo, afim de alterá-lo. */
+    private Jogador jogador;        /* Referência para o objeto jogador dentro do jogo, afim de alterá-lo. */
 
 
     public Invencibilidade(double x, double y) {
@@ -49,28 +49,29 @@ public class Invencibilidade implements Colidivel, PowerUp {
      * 
     */
     
-    /* (1) funções de ativação e desativação do efeito de tiro triplo no jogador. */
+    /* (1) funções de ativação e desativação do efeito de invencibilidade triplo no jogador. */
 
-    /* ativa o efeito do tiro triplo, iniciando o contador do powerup e aplicando no jogador */
-    public void ativar(Jogador jogador, long tempoTiroTriplo){
+    /* ativa o efeito do invencibilidade, iniciando o contador do powerup e aplicando no jogador */
+    public void ativar(Jogador jogador, long tempoInvencibilidade){
         this.jogador = jogador;
-        pow_base.ativar(tempoTiroTriplo);;
+        pow_base.ativar(tempoInvencibilidade);;
         aplicar();
     }
 
-    /* desativa o efeito do tiro triplo, aplica ao jogador a mudança, e atribuindo o estado de inativo ao powerup, podendo ser assim removido */
+    /* desativa o efeito do invencibilidade, aplica ao jogador a mudança, e atribuindo o estado de inativo ao powerup, podendo ser assim removido */
     public void desativar(){
         pow_base.desativar();
         aplicar();
+        pow_base.setEstado(INACTIVATE);
     }
 
 
-    /* (2) função que aplica o efeito ao jogador, permitindo (ou não) ele realizar o tiro triplo dentre de sua função 'disparar(long tempoAtual).' */
+    /* (2) função que aplica o efeito ao jogador, tornando-o invencível). */
 
     public void aplicar(){
         if(pow_base.getPowerUpAtivo()) jogador.setCor(Color.WHITE);
         else jogador.setCor(Color.BLUE);
-        jogador.getVidaBase().setInvencibilidade(pow_base.getPowerUpAtivo());   
+        jogador.getVidaBase().ativaInvencibilidade(pow_base.getPowerUpAtivo());   
     }
 
     
@@ -82,22 +83,23 @@ public class Invencibilidade implements Colidivel, PowerUp {
     /* atualiza o estado do powerup para explosão afim de, assim, remover o objeto físico do powerup na lógica do jogo, porém mantendo o objeto ativo 
      * para o cálculo do tempo do efeito e o desenho da barra*/
     public void remover() {
-        pow_base.setEstado(EXPLODING); 
+        pow_base.remover(); 
     }
  
 
     /* (4) funções de atualizações do objeto de powerup e desenho (também da barra de tempo) ao longo do tempo de jogo */
 
-    /* atualiza os atributos do powerup ao longo do tempo de jogo em duas condições:
-    *  (i) caso esse tenha ultrapassado os limites do jogo, torna-se inativo;
-    *  (ii) caso o tempo do efeito tenha passado, torna-se inativo;
-    *  (iii) caso nenhuma dessas condições tenha sido alcançadas, o powerup é atualizado conforme sua lógica de movimento no jogo*/    
+    /* atualiza os atributos do powerup ao longo do tempo de jogo. */
     public void update(long delta) {
         pow_base.update(delta);
+        if(!pow_base.getPowerUpAtivo() && pow_base.getEstado() == EXPLODING){
+            aplicar();
+            pow_base.setEstado(INACTIVATE);
+        }
     }   
 
-    /* desenha a entidade do powerup e barra de tempo, caso o efeito esteja ativo */
+    /* desenha a entidade do powerup e barra de tempo, caso o efeito esteja ativo. */
     public void draw() {
-        pow_base.drawTiroTriplo();
+        pow_base.drawInvencibilidade();
     }
 }

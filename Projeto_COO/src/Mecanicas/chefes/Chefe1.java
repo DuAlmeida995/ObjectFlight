@@ -3,34 +3,36 @@ package Mecanicas.chefes; // aaa
 import java.awt.Color;
 
 import Jogo.GameLib;
+
 import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.bases.VidaBase;
-import Mecanicas.constantes.Estados;
-import Mecanicas.interfaces.*;
 
+import Mecanicas.constantes.Estados;
+
+import Mecanicas.interfaces.*;
 import static Mecanicas.constantes.Estados.*;
 
 /* class Chefe1
- * Classe que implementa a entidade de chefe de tipo 1 no jogo.
+ * Classe que implementa a entidade de chefe de tipo 1 no jogo. O Chefe 1 realiza disparos enquanto se move de uma borda a outra.
 */
 
 public class Chefe1 implements Chefe, Colidivel{
 
-    EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
-    VidaBase vid_base;               /* Objeto para administrar as propriedades de 'Vida'           */
+    private EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
+    private VidaBase vid_base;               /* Objeto para administrar as propriedades de 'Vida'           */
 
-    private boolean descendo;
-    private int aumentou ;
-    private long tiroEspecial;
+    private boolean descendo;               /* Variável que controla a lógica de movimento */
+    
+    private int aumentou ;                  /* Variável que controla a lógica de disparo  */
+    private long proximoTiroEspecial;       /* Cadência do tiro especial  */
 
     public Chefe1(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base  = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
         vid_base     = new VidaBase(vidaMaxima);
         descendo     = true;
         aumentou     = 0;
-        tiroEspecial = 0;
-        entIni_base.setEstado(ACTIVE);
+        proximoTiroEspecial = 0;
     }
     
     /* Funções getters de posição, raio e estado. */
@@ -77,9 +79,9 @@ public class Chefe1 implements Chefe, Colidivel{
         if(tempoAtual > entIni_base.getProximoTiro() && !descendo){
             /* Caso o Chefe tenha reduzido a vida a metade, dispara um tiro especial na posição central e tiros normais nas laterais. */
             if(aumentou == 2){
-                if(tempoAtual > tiroEspecial){
+                if(tempoAtual > proximoTiroEspecial){
                     projeteisInimgos.disparar(entIni_base.getX(), entIni_base.getY() + 35,Math.cos(3*(Math.PI/2)) * 0.25, Math.sin(3*(Math.PI/2)) * 0.25 * (-1.0), 30);
-                    tiroEspecial = tempoAtual + 2000;
+                    proximoTiroEspecial = tempoAtual + 2000;
                 }
                 double angulo = Math.PI/2 + Math.PI/8 + Math.random() * Math.PI/6 - Math.PI/12;
                 double vx1 = Math.cos(angulo) * 0.30;
@@ -98,12 +100,12 @@ public class Chefe1 implements Chefe, Colidivel{
 
     /* (4) funções de atualizações do Chefe1 e desenho (também de seus projéteis) ao longo do tempo de jogo. */
     
-    /* atualiza os atributos do Chefe1 ao longo do tempo de jogo em uma condição:
+    /* atualiza os atributos do Chefe1 ao longo do tempo de jogo em três instâncias:
     *  (i) caso esse tenha explodido, torna-se inativo;
-    *  Caso nenhuma dessas condições tenha sido alcançadas, o chefe é atualizado conforme sua lógica de movimento no jogo.
-    *  Além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe1 */
+    *  (ii) caso contrário, o chefe é atualizado conforme sua lógica de movimento no jogo.
+    *  (iii) atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe1 */
     public void update(long delta, double posJogadorX, double posJogadorY) {
-        /* condição (i) */
+        /* instância (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
@@ -117,7 +119,7 @@ public class Chefe1 implements Chefe, Colidivel{
             entIni_base.setV(entIni_base.getV() + 0.05);
             aumentou = 2;
         }
-
+        /* instância (ii) */
         if(entIni_base.getEstado() == ACTIVE){
             /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
@@ -142,7 +144,7 @@ public class Chefe1 implements Chefe, Colidivel{
                     entIni_base.setAngulo(Math.PI);
                 }
             }
-            /* atualiza o tempo de invencibilidade do Chefe1*/
+            /* instância (iii) */
             vid_base.updateInvencibilidade();       
         }
     }

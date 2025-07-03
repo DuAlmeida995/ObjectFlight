@@ -3,32 +3,34 @@ package Mecanicas.chefes;
 import java.awt.Color;
 
 import Jogo.GameLib;
+
 import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
 import Mecanicas.bases.VidaBase;
-import Mecanicas.constantes.Estados;
-import Mecanicas.interfaces.*;
 
+import Mecanicas.constantes.Estados;
+
+import Mecanicas.interfaces.*;
 import static Mecanicas.constantes.Estados.*;
 
 /* class Chefe2
- * Classe que implementa a entidade de chefe de tipo 2 no jogo.
+ * Classe que implementa a entidade de chefe de tipo 2 no jogo. O Chefe2 causa dano interagindo fisicamente com o Jogador, isto é, ele não atira e segue o jogador para lhe causar dano.
 */
 public class Chefe2 implements Chefe, Colidivel{
 
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
-    VidaBase vid_base;               /* Objeto que adminsitra as propriedades de 'Vida Base '       */
+    VidaBase vid_base;               /* Objeto que adminsitra as propriedades de 'Vida Base ' */
 
-    private boolean descendo ;
+    private boolean descendo ;       /* Variável que controla a lógica de movimento */
     
-    private double posDestinoX;
-    private double posDestinoY;
+    private double posDestinoX;      /* Variável para destinar o movimento de perseguição no eixo X */
+    private double posDestinoY;      /* Variável para destinar o movimento de perseguição no eixo Y */
 
-    private long tempoDeEspera;
-    private int quantDeMov;
-    private int contadorDeMov;
+    private long tempoDeEspera;      /* Variável para controlar o tempo de espera da perseguição */
+    private boolean esperando;       /* Variável para indicar se o chefe deve mover ou não */
     
-    private boolean esperando;
+    private int quantDeMov;          /* Variável para controlar a quantidade de movimento de perseguição */
+    private int contadorDeMov;       /* Variável para contar quantos movimentos de perseguição foram dados */
 
     public Chefe2(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
         entIni_base   = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
@@ -64,37 +66,37 @@ public class Chefe2 implements Chefe, Colidivel{
     */
 
     
-    /* (1) funções básicas de controle da vida do Jogador. */
+    /* (1) funções básicas de controle da vida do chefe. */
 
     public void reduzir() { vid_base.reduzir();}
     public boolean estaMorto() { return vid_base.estaMorto();}
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
 
     
-    /* (2) funções de execução da lógica de colisão e eventual explosão do jogador. */
+    /* (2) funções de execução da lógica de colisão e eventual explosão do chefe. */
 
     /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
-    /* atualiza os atributos do jogador caso este exploda. */
+    /* atualiza os atributos do chefe caso este exploda. */
     public void emExplosao(){ entIni_base.emExplosao();}
 
 
     /* (3) funções de atualizações do Chefe2 e desenho ao longo do tempo de jogo. */
 
-    /* atualiza os atributos do Chefe2 ao longo do tempo de jogo em duas condições:
+    /* atualiza os atributos do Chefe2 ao longo do tempo de jogo em três instâncias:
     *  (i) caso esse tenha explodido, torna-se inativo;
-    *  Caso nenhuma dessas condições tenha sido alcançadas, o chefe é atualizado conforme sua lógica de movimento no jogo.
-    *  O Chefe2 causa dano interagindo fisicamente com o Jogador, isto é, ele não atira e segue o jogador para lhe causar dano.
-    *  Além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe2 */
+    *  (ii) caso contrário, o chefe é atualizado conforme sua lógica de movimento no jogo.
+    *  (iii) atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe2 */
     public void update(long delta, double posJogadorX, double posJogadorY) {
-        /* condição (i) */
+        /* instâncias (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
+        /* instâncias (ii) */
         if(entIni_base.getEstado() == ACTIVE){
             /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
@@ -153,7 +155,7 @@ public class Chefe2 implements Chefe, Colidivel{
                     }
                 }
             }  
-            /* atualiza o tempo de invencibilidade do Chefe2*/
+            /* instâncias (iii) */
             vid_base.updateInvencibilidade();
         }  
     }

@@ -1,12 +1,12 @@
 package Mecanicas.bases;
 
-/* class ExplosaoBase
+/* classe ExplosaoBase
  * Classe que serve de base para os atributos de explosões das entidades de inimigo e jogador do jogo.
 */
 
 public class ExplosaoBase {
 
-    double explosaoComeco, explosaoFim; /* Tempo em que começa e termina as explosões */
+    private double explosaoComeco, explosaoFim; /* Tempo em que começa e termina as explosões */
 
     public ExplosaoBase(double explosaoComeco, double explosaoFim){
         this.explosaoComeco = explosaoComeco;
@@ -14,9 +14,10 @@ public class ExplosaoBase {
     }
 
     /* Funções getters e setters para o tempo de começo e fim da explosão. */
-    public double getexplosaoComeco() { return this.explosaoComeco;}
-    public void setExplosaoComeco(double explosaoComeco) { this.explosaoComeco = explosaoComeco;}
-    public double getexplosaoFim() { return this.explosaoFim;}
-    public void setExplosaoFim(double explosaoFim) { this.explosaoFim = explosaoFim;}
 
+    /* atributos de explosão */
+    public double getexplosaoComeco() { return this.explosaoComeco;}
+    public double getexplosaoFim() { return this.explosaoFim;}
+    public void setExplosaoComeco(double explosaoComeco) { this.explosaoComeco = explosaoComeco;}
+    public void setExplosaoFim(double explosaoFim) { this.explosaoFim = explosaoFim;}
 }

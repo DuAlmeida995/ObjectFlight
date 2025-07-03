@@ -25,14 +25,14 @@ import Mecanicas.projetil.*;
 
 public class Jogador implements Colidivel{
 
-    DisparadorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador'  */
-    EntidadeBase ent_base;   /* Objeto para administrar as propriedades de 'Entidade'  */
-    ExplosaoBase exp_base;   /* Objeto para administrar as propriedades de 'Explosao'  */
-    MovimentoBase mov_base;  /* Objeto para administrar as propriedades de 'Movimento' */
-    VidaBase vid_base;       /* Objeto para administrar as propriedades de 'Vida'      */
+    DisparadorBase ati_base;                /* Objeto para administrar as propriedades de 'Atirador'  */
+    EntidadeBase ent_base;                  /* Objeto para administrar as propriedades de 'Entidade'  */
+    ExplosaoBase exp_base;                  /* Objeto para administrar as propriedades de 'Explosao'  */
+    MovimentoBase mov_base;                 /* Objeto para administrar as propriedades de 'Movimento' */
+    VidaBase vid_base;                      /* Objeto para administrar as propriedades de 'Vida'      */
     
-    private boolean tiroTriploAtivo;
-    private Color jogadorCor = Color.BLUE;
+    private boolean tiroTriploAtivo;        /* Variável ativada pelo powerup de tiro triplo, alterando a lógica de tiro */
+    private Color jogadorCor = Color.BLUE;  /* Variável de controle da cor do jogador, mutável perante o powerup de invencibilidade */
 
     public Jogador(double x, double y, long tempoAtual, int vidaMaxima) {
         ent_base = new EntidadeBase(x,y,12);                      /* Raio -> 12 */ 
@@ -43,7 +43,8 @@ public class Jogador implements Colidivel{
         tiroTriploAtivo = false;
     }
 
-    /* Funções getters e setters de posição e um getter para raio, velocidade no eixo X e eixo Y, estado e lista de projéteis.*/
+    /* Funções getters e setters de posição e um getter para raio, velocidade no eixo X e eixo Y, estado, sistema de vida, lista de projéteis 
+    e um setter para o tiroTriplo e a cor do jogador.*/
     
     /* posição */
     public double getX() { return ent_base.getX();}
@@ -61,14 +62,18 @@ public class Jogador implements Colidivel{
     /* estado */
     public Estados getEstado(){ return ent_base.getEstado();}
 
-    public VidaBase getVidaBase(){ return vid_base;}
-
-    public void setTiroTriplo(boolean tiroTriploAtivo){ this.tiroTriploAtivo = tiroTriploAtivo;}
-
-    public void setCor(Color cor){ this.jogadorCor = cor;}
     /* 'pool' de projéteis */
     public List<Projetil> getProjetilPool(){ return ati_base.getProjeteis();}
+    
+    /* sistema de vida */
+    public VidaBase getVidaBase(){ return vid_base;}
 
+    /* tiroTriplo */
+    public void setTiroTriplo(boolean tiroTriploAtivo){ this.tiroTriploAtivo = tiroTriploAtivo;}
+
+    /* cor do jogador */
+    public void setCor(Color cor){ this.jogadorCor = cor;}
+    
     /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
      * 
      * (1) Vida;
@@ -119,23 +124,23 @@ public class Jogador implements Colidivel{
 
     /* (5) funções de atualizações do jogador e desenho (também de seus projéteis) ao longo do tempo de jogo. */
 
-    /* atualiza os atributos do jogador ao longo do tempo de jogo em três condições:
+    /* atualiza os atributos do jogador ao longo do tempo de jogo em três instâncias:
     *  (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
     *  (ii) caso, ao calcular o input do usuário, o jogador tente ultrapassar a tela do jogo.
     *  (iii) além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do jogador.*/
     public void update(long tempoAtual){
-        /* condição (i) */
+        /* instância (i) */
         if(ent_base.getEstado() == EXPLODING){
             if(tempoAtual > exp_base.getexplosaoFim()){
                 ent_base.setEstado(ACTIVE);
             }
         }
-        /* condição (ii) */
+        /* instância (ii) */
         if(ent_base.getX() < 0.0) ent_base.setX(0);
 		if(ent_base.getX() >= GameLib.WIDTH) ent_base.setX(GameLib.WIDTH - 1);
 		if(ent_base.getY() < 25.0) ent_base.setY(25.0);
 		if(ent_base.getY() >= GameLib.HEIGHT) ent_base.setY(GameLib.HEIGHT - 1);
-        /* condição (iii) */
+        /* instância (iii) */
         vid_base.updateInvencibilidade();
     }
 

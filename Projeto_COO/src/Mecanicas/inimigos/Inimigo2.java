@@ -22,10 +22,10 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
 
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
 
-    private boolean rotacaoCompleta;
-    private boolean deveDisparar;
-    private double anteriorY;
-    private double threshold ;
+    private boolean rotacaoCompleta; /* Variável para controlar quando o inimigo rotaciona */
+    private boolean deveDisparar;    /* Variável para controlar quando o inimigo deve atira */
+    private double anteriorY;        /* Variável para a lógica do movimento */
+    private double threshold ;       /* Variável de threshold para o movimento */
 
     public Inimigo2(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual) {
         entIni_base     = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
@@ -75,6 +75,7 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
         return false;
     }
 
+    /* realiza o disparo */
     public void disparar(DisparadorBase projeteisInimigos, long tempoAtual){
         if (deveDisparar()) {
             /* Dispara 3 projéteis em um formato de leque */
@@ -92,23 +93,24 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
 
     /* (3) funções de atualizações do Inimigo2 e desenho ao longo do tempo de jogo. */
 
-    /* atualiza os atributos do Inimigo2 ao longo do tempo de jogo em duas condições:
+    /* atualiza os atributos do Inimigo2 ao longo do tempo de jogo em três instâncias:
     *  (i) caso esse tenha explodido, torna-se inativo;
     *  (ii) caso esse tenha ultrapassado os limites do jogo.
-    *  Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
+    *  (iii) caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
     public void update(long deltaTime) {
-        /* condição (i) */
+        /* instância (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
-        /* condição (ii) */
+        /* instância (ii) */
         if(entIni_base.getX() < - 10 || entIni_base.getX() > GameLib.WIDTH + 10){
             entIni_base.setEstado(INACTIVATE);
             return;
         }
+        /* instância (iii) */
         /* movimenta-se entrando na tela no sentido vertical para baixo, realizando uma rotação e saindo da tela */
         anteriorY = entIni_base.getY();
         entIni_base.setX(entIni_base.getX() + entIni_base.getV()*Math.cos(entIni_base.getAngulo()) * deltaTime);

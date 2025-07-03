@@ -56,10 +56,11 @@ public class TiroTriplo implements Colidivel, PowerUp {
         aplicar();
     }
 
-    /* desativa o efeito do tiro triplo, aplica ao jogador a mudança, e atribuindo o estado de inativo ao powerup, podendo ser assim removido */
+    /* desativa o efeito do tiro triplo, aplica ao jogador a mudança, e atribui o estado de inativo ao powerup, podendo ser assim removido */
     public void desativar(){
         pow_base.desativar();
         aplicar();
+        pow_base.setEstado(INACTIVATE);
     }
 
 
@@ -78,18 +79,19 @@ public class TiroTriplo implements Colidivel, PowerUp {
     /* atualiza o estado do powerup para explosão afim de, assim, remover o objeto físico do powerup na lógica do jogo, porém mantendo o objeto ativo 
      * para o cálculo do tempo do efeito e o desenho da barra*/
     public void remover() {
-        pow_base.setEstado(EXPLODING); 
+        pow_base.remover(); 
     }
  
 
     /* (4) funções de atualizações do objeto de powerup e desenho (também da barra de tempo) ao longo do tempo de jogo */
 
-    /* atualiza os atributos do powerup ao longo do tempo de jogo em duas condições:
-    *  (i) caso esse tenha ultrapassado os limites do jogo, torna-se inativo;
-    *  (ii) caso o tempo do efeito tenha passado, torna-se inativo;
-    *  (iii) caso nenhuma dessas condições tenha sido alcançadas, o powerup é atualizado conforme sua lógica de movimento no jogo*/    
+    /* atualiza os atributos do powerup ao longo do tempo de jogo. */
     public void update(long delta) {
         pow_base.update(delta);
+        if(!pow_base.getPowerUpAtivo() && pow_base.getEstado() == EXPLODING){
+            aplicar();
+            pow_base.setEstado(INACTIVATE);
+        }
     }   
 
     /* desenha a entidade do powerup e barra de tempo, caso o efeito esteja ativo */

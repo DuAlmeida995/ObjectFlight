@@ -1,10 +1,11 @@
 package Mecanicas.bases;
 
 import java.util.List;
+
 import Mecanicas.projetil.*;
 
-/* class DisparadorBase 
- * Classe que serve de base a funcionalidade de disparo das entidades do jogo.
+/* classe DisparadorBase 
+ * Classe que serve de base para funcionalidade de disparo das entidades do jogo.
 */
 
 public class DisparadorBase {
@@ -26,21 +27,41 @@ public class DisparadorBase {
     /* 'pool' de projéteis */
     public List<Projetil> getProjeteis(){ return pool.getProjeteis();}
     
-    /* Função para verificar se a entidade pode atirar. */    
+    /* ------------------------------------------------------------- Mecânicas da EntidadeBase ------------------------------------------------------------- 
+     * 
+     * (1) Disparo;
+     * (2) Atualização e desenho.
+     *  
+    */
+
+
+    /* (1) funções para gerenciar o disparo das entidades. */
+    
+    /* verifica se a entidade pode atirar. */    
     public boolean podeDisparar(long tempoAtual) {
         return tempoAtual > proximoTiro;
     }
     
-    /* Função para realizar o disparo de um projétil */
-    public void disparar(double x, double y, double vx, double vy, double raio) { pool.disparar(x, y, vx, vy, raio);}
+    /* realizar o disparo de um projétil (adiciona um projétil na 'pool'). */
+    public void disparar(double x, double y, double vx, double vy, double raio) { 
+        pool.disparar(x, y, vx, vy, raio);
+    }
 
-    /* Função que atualiza os atributo dos projéteis da entidade. */
-    public void updateProjeteis(long delta){pool.update(delta);}
 
-    /* Função a ser utilizada para desenhar os projéteis do jogador. */
-    public void drawProjeteisJogador(){pool.drawProjeteisJogador();} 
+    /* (2) funções de atualizações e desenho dos projéteis ao longo do tempo de jogo. */
 
-    /* Função a ser utilizada para desenhar os projéteis do jogador. */
-    public void drawProjeteisInimigo(){pool.drawProjeteisInimigo();}
+    /* atualiza os atributos dos projéteis da 'pool'. */
+    public void updateProjeteis(long delta){
+        pool.update(delta);
+    }
 
+    /* desenha os projéteis do jogador. */
+    public void drawProjeteisJogador(){
+        pool.drawProjeteisJogador();
+    } 
+
+    /* desenha os projéteis do inimigo. */
+    public void drawProjeteisInimigo(){
+        pool.drawProjeteisInimigo();
+    }
 }

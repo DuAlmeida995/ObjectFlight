@@ -8,19 +8,22 @@ import static Mecanicas.constantes.Estados.*;
 
 import Mecanicas.interfaces.Colidivel;
 
+/* classe PowerUpBase
+ * Classe que serve de base para os powerups atribuidos ao jogador, implementando ativação, desativação e tempo de duração do efeito.
+*/
 public class PowerUpBase {
     
     private EntidadeBase ent_base;   /* Objeto para administrar as propriedades de 'Entidade'  */
     
-    private boolean powerUpAtivo; /* Efeito do tiro triplo ativo ou não. */
-    private long powerUpTempo;    /* Tempo de duração do efeito de tiro triplo, que reduz ao longo do tempo. */
+    private boolean powerUpAtivo;    /* Efeito do powerup ativo ou não. */
+    private long powerUpTempo;       /* Tempo de duração do efeito do powerup, que reduz ao longo do tempo. */
     private long tempoTotal;         /* Tempo total de duração, utilizado para o desenha da barra de tempo do powerup. */
 
     public PowerUpBase(double x, double y, double raio) {
         this.ent_base = new EntidadeBase(x, y, raio);
     }
 
-    /* Funções getters de posição, raio e estado.*/
+    /* Funções getters e setter de estado, powerUpAtivo e powerUpTempo e getter de posição e raio .*/
     
     /* posição */
     public double getX(){ return ent_base.getX();}
@@ -50,19 +53,18 @@ public class PowerUpBase {
      * 
     */
     
-    /* (1) funções de ativação e desativação do efeito de tiro triplo no jogador. */
+    /* (1) funções de ativação e desativação do efeito do powerup no jogador. */
 
-    /* ativa o efeito do tiro triplo, iniciando o contador do powerup e aplicando no jogador */
+    /* ativa o efeito do powerup, iniciando o contador. */
     public void ativar(long powerUpTempo){
         powerUpAtivo = true;
         this.powerUpTempo = powerUpTempo;
         this.tempoTotal = powerUpTempo;
     }
 
-    /* desativa o efeito do tiro triplo, aplica ao jogador a mudança, e atribuindo o estado de inativo ao powerup, podendo ser assim removido */
+    /* desativa o efeito do powerup e atribui o estado de inativo ao powerup, podendo ser assim removido do jogo.*/
     public void desativar(){
         powerUpAtivo = false;
-        ent_base.setEstado(INACTIVATE);
     }
 
    
@@ -85,16 +87,16 @@ public class PowerUpBase {
     *  (ii) caso o tempo do efeito tenha passado, torna-se inativo;
     *  (iii) caso nenhuma dessas condições tenha sido alcançadas, o powerup é atualizado conforme sua lógica de movimento no jogo*/    
     public void update(long delta) {
-        /* condição (i) */
+        /* instâncias (i) */
         if (ent_base.getY() > GameLib.HEIGHT + 10) ent_base.setEstado(INACTIVATE);
-        /* condição (ii) */
+        /* instâncias (ii) */
         if(powerUpAtivo){
             powerUpTempo --;
             if(powerUpTempo <= 0){
                 desativar();
             }
         }
-        /* condição (iii) */
+        /* instâncias (iii) */
         if (ent_base.getEstado() == ACTIVE){
             /* movimento vertical descendente */
             ent_base.setY(ent_base.getY() + delta * 0.15);
@@ -102,6 +104,8 @@ public class PowerUpBase {
     }   
 
     /* desenha a entidade do powerup e barra de tempo, caso o efeito esteja ativo */
+
+    /* desenho do tiro triplo. */
     public void drawTiroTriplo() {
         if (ent_base.getEstado() == ACTIVE) {
             GameLib.setColor(Color.ORANGE);
@@ -116,6 +120,7 @@ public class PowerUpBase {
         }   
     }
 
+    /* desenho da invencibilidade. */
     public void drawInvencibilidade(){
         if (ent_base.getEstado() == ACTIVE) {
             GameLib.setColor(Color.WHITE);

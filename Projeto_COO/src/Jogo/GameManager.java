@@ -81,8 +81,8 @@ public class GameManager {
         this.running                   = true;
         this.jogador                   = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, vidaJogador);
         this.powerUPs                  = new ArrayList<>();
-        this.proximoPowerUp            = System.currentTimeMillis() + 1000;
-        this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 1000;
+        this.proximoPowerUp            = System.currentTimeMillis() + 15000;
+        this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 8000;
         this.inimigos                  = new ArrayList<>();
         this.projeteisInimigos         = new DisparadorBase(tempoAtual + 500);
         this.fundo                     = new BackgroundEstrela();      
@@ -232,11 +232,11 @@ public class GameManager {
     private void spawnPowerUP(long tempoAtual){
         if(tempoAtual > proximoPowerUp) {
             powerUPs.add(new Invencibilidade(Math.random() * (GameLib.WIDTH - 20) + 10, -10));
-            proximoPowerUp = tempoAtual + 15000;
+            proximoPowerUp = tempoAtual + 30000;
         }
         if(tempoAtual > proximoPowerUpTiroTriplo) {
             powerUPs.add(new TiroTriplo(Math.random() * (GameLib.WIDTH - 20) + 10, -10));
-            proximoPowerUpTiroTriplo = tempoAtual + 15000;
+            proximoPowerUpTiroTriplo = tempoAtual + 27000;
         }
     }
 

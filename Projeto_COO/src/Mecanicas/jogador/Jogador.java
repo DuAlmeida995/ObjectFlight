@@ -79,7 +79,7 @@ public class Jogador implements Colidivel{
     */
     
     
-    /* (1) funções básicas de controle da vida do Jogador. */
+    /* (1) funções básicas de controle da vida do jogador. */
 
     public boolean estaMorto() { return vid_base.estaMorto();}
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
@@ -117,7 +117,7 @@ public class Jogador implements Colidivel{
     }
 
 
-    /* (5) funções de atualizações do Jogador e desenho (também de seus projéteis) ao longo do tempo de jogo. */
+    /* (5) funções de atualizações do jogador e desenho (também de seus projéteis) ao longo do tempo de jogo. */
 
     /* atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     *  (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
@@ -142,7 +142,7 @@ public class Jogador implements Colidivel{
     /* atualiza os atributos dos projéteis do jogador. */
     public void updateProjeteis(long deltaTime){ ati_base.updateProjeteis(deltaTime);}
 
-    /* desenha a entidade Jogador, seus projéteis na tela e sua barra de vida. */
+    /* desenha a entidade jogador, seus projéteis na tela e sua barra de vida. */
     public void draw() {
         if (ent_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - exp_base.getexplosaoComeco()) / 

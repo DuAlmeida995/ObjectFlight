@@ -37,7 +37,15 @@ public class EntidadeBase{
     public Estados getEstado() { return this.estado;}
     public void setEstado(Estados estado) { this.estado = estado;}
 
-    /* Função que calcula se uma entidade entra em colisão com outra. */
+    /* ------------------------------------------------------------- Mecânicas da EntidadeBase ------------------------------------------------------------- 
+     * 
+     * (1) Colisão;
+     *  
+    */
+
+    /* (1) funções bases de gerenciamento de colisões e entrada no estado de explosão para todas as entidades do jogo. */
+
+    /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel o) {
         double dx = getX() - o.getX();
         double dy = getY() - o.getY();
@@ -45,11 +53,10 @@ public class EntidadeBase{
         return distancia < (getRaio() + o.getRaio()) * 0.8;
     }
 
-    /* Função que atualiza os atributos das entidades, entrando em estado de explosão. */
+    /* atualiza os atributos das entidades, entrando em estado de explosão. */
     public void emExplosao(ExplosaoBase exp_base, long tempoExplosao){
         this.estado = EXPLODING;
         exp_base.setExplosaoComeco(System.currentTimeMillis());
         exp_base.setExplosaoFim(exp_base.getexplosaoComeco() + tempoExplosao);
     }
-
 }

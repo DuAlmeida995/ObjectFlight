@@ -5,20 +5,26 @@ import Jogo.GameLib;
 import Mecanicas.bases.EntidadeBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
+import Mecanicas.interfaces.PowerUp;
 import Mecanicas.jogador.Jogador;
 
 import static Mecanicas.constantes.Estados.*;
 
-public class TiroTriplo extends EntidadeBase implements Colidivel {
-    private Estados estado = ACTIVE;
+public class TiroTriplo implements Colidivel, PowerUp {
+
+    private EntidadeBase ent_base;
     private Jogador jogador; 
     private boolean tiroTriploAtivo;
     private long tempoTiroTriplo;
     private long tempoTotal;
 
     public TiroTriplo(double x, double y) {
-        super(x, y, 10); // raio 10
+        this.ent_base = new EntidadeBase(x, y, 10); // raio 10
     }
+
+    public double getX(){ return ent_base.getX();}
+    public double getY(){ return ent_base.getY();}
+    public double getRaio(){ return ent_base.getRaio();}
 
     public void ativar(Jogador jogador, long tempoTiroTriplo){
         tiroTriploAtivo = true;
@@ -34,12 +40,13 @@ public class TiroTriplo extends EntidadeBase implements Colidivel {
 
     public boolean estaAtivo() { return tiroTriploAtivo; }
 
+    public boolean colideCom(Colidivel o){ return ent_base.colideCom(o);}
 
     public void update(long delta) {
-        if (getY() > GameLib.HEIGHT + 10) estado = EXPLODING;
+        if (ent_base.getY() > GameLib.HEIGHT + 10) ent_base.setEstado(EXPLODING);
         
-        if (estado == ACTIVE){
-            setY(getY() + delta * 0.15); // velocidade vertical
+        if (ent_base.getEstado() == ACTIVE){
+            ent_base.setY(ent_base.getY() + delta * 0.15); // velocidade vertical
         }
 
         if(tiroTriploAtivo){
@@ -47,13 +54,13 @@ public class TiroTriplo extends EntidadeBase implements Colidivel {
             if(tempoTiroTriplo <= 0){
                 tiroTriploAtivo = false;
                 aplicar();
-                estado = INACTIVATE;
+                ent_base.setEstado(INACTIVATE);
             }
         }
     }   
 
     public void draw() {
-        if (estado == ACTIVE) {
+        if (ent_base.getEstado() == ACTIVE) {
             GameLib.setColor(Color.ORANGE);
             GameLib.drawDiamond(getX(), getY(), getRaio());
         }
@@ -68,7 +75,7 @@ public class TiroTriplo extends EntidadeBase implements Colidivel {
         }   
     }
 
-    public Estados getEstado() { return estado; }
+    public Estados getEstado() { return ent_base.getEstado(); }
 
-    public void desativar() { estado = EXPLODING; }
+    public void desativar() { ent_base.setEstado(EXPLODING); }
 }

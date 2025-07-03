@@ -10,9 +10,10 @@ import Jogo.GameLib;
 import Mecanicas.bases.EntidadeBase;
 import Mecanicas.constantes.Estados;
 import Mecanicas.interfaces.Colidivel;
+import Mecanicas.interfaces.PowerUp;
 import Mecanicas.jogador.Jogador;
 
-public class Invencibilidade implements Colidivel {
+public class Invencibilidade implements Colidivel, PowerUp {
 
     private EntidadeBase ent_base;
     private Jogador jogador;
@@ -40,7 +41,7 @@ public class Invencibilidade implements Colidivel {
         jogador.getVidaBase().setInvencibilidade(invencibilidadeAtivo);
     }   
 
-    public void update(double delta) {
+    public void update(long delta) {
         if (ent_base.getY() > GameLib.HEIGHT) ent_base.setEstado(EXPLODING);
 
         if (ent_base.getEstado() == ACTIVE) {

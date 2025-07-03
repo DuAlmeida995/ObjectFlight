@@ -58,9 +58,8 @@ public class GameManager {
     private double posicaoYChefe;
     private boolean spawnouChefe;
 
-    private List<Invencibilidade> powerUps;
+    private List<PowerUp> powerUPs;
     private long proximoPowerUp;
-    private List<TiroTriplo> powerUpsTiroTriplo;  
     private long proximoPowerUpTiroTriplo;          
 
 
@@ -81,9 +80,8 @@ public class GameManager {
 
         this.running                   = true;
         this.jogador                   = new Jogador(GameLib.WIDTH/2, (int)(GameLib.HEIGHT*0.9), tempoAtual, vidaJogador);
-        this.powerUps                  = new ArrayList<>();
+        this.powerUPs                  = new ArrayList<>();
         this.proximoPowerUp            = System.currentTimeMillis() + 1000;
-        this.powerUpsTiroTriplo        = new ArrayList<>();
         this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 1000;
         this.inimigos                  = new ArrayList<>();
         this.projeteisInimigos         = new DisparadorBase(tempoAtual + 500);
@@ -142,14 +140,16 @@ public class GameManager {
         carregarDadosFase(fases[faseAtual-1]);
     }
 
-    /*                                                  
+    /*  ------------------------------------------------------------- Loop do Jogo -------------------------------------------------------------                                             
+     * 
      * Loop do jogo que realiza quatro principais funções:
      * (1) detecta colisões do jogador com inimigos, do jogador com os projéteis do inimigo;
      * (2) atualiza o estado dos elementos na tela ao passo que o tempo passa;
      * (3) captura e calcula, conforme a entrada do usuário pelo teclado, mudanças no estado
      * do jogador;
      * (4) desenha a cena apartir do momento atual. 
-     * (5) espera um intervalo de tempo.                                                   
+     * (5) espera um intervalo de tempo.
+     *                                                    
     */
 
     public void loop() {
@@ -159,16 +159,20 @@ public class GameManager {
             tempoAtual = System.currentTimeMillis();
 
             detectarColisoes();
+            
             updateAll(delta,tempoAtual);
+            
             handleInput(delta);
+            
             renderAll();
+            
             busyWait(tempoAtual + 3);
         }
 
         System.exit(0);
     }
 
-    /* (1) Função que detecta possíveis colisões das Entidades colidíveis no jogo. */
+    /* (1) detecta possíveis colisões das Entidades colidíveis no jogo. */
 
     private void detectarColisoes() {
         if (jogador.getEstado() == ACTIVE && !jogador.estaInvencivel()) {
@@ -210,30 +214,26 @@ public class GameManager {
             }
         }
         
-        for (Invencibilidade pu : powerUps) {
+        for (PowerUp pu : powerUPs) {
             if(pu.getEstado() == ACTIVE){
-                if (jogador.colideCom(pu)) {
+                if (jogador.colideCom((Colidivel) pu)) {
                     pu.ativar(jogador, 5000); // 300 frames (~5s a 60fps)
                     pu.desativar();
                 }
             }
         }
-        
-        for (TiroTriplo puT : powerUpsTiroTriplo) {
-            if(puT.getEstado() == ACTIVE){
-                if (jogador.colideCom(puT)) {
-                    puT.ativar(jogador, 5000); // dura 10s
-                    puT.desativar();
-                }
-            }
-        }
     }
+
+
+    /* (2) realiza a atualização dos estados das Entidades do jogo, como a posição do 
+     * elemento na tela e o spawn de inimigos e powerups.
+    */
 
     private void spawnInvencibilidade(long tempoAtual) {
         if (tempoAtual > proximoPowerUp) {
             double x = Math.random() * (GameLib.WIDTH - 20) + 10;  // Posição X aleatória dentro da tela
             double y = -10; // Spawnar acima da tela, para descer depois
-            powerUps.add(new Invencibilidade(x, y));
+            powerUPs.add(new Invencibilidade(x, y));
             proximoPowerUp = tempoAtual + 15000; // Spawn a cada 15 segundos (ajuste como quiser)
         }
     }
@@ -242,7 +242,7 @@ public class GameManager {
         if (tempoAtual > proximoPowerUpTiroTriplo) {
             double x = Math.random() * (GameLib.WIDTH - 20) + 10;
             double y = -10;
-            powerUpsTiroTriplo.add(new TiroTriplo(x, y));
+            powerUPs.add(new TiroTriplo(x, y));
             proximoPowerUpTiroTriplo = tempoAtual + 15000; // novo spawn a cada 30s
         }
     }
@@ -279,26 +279,19 @@ public class GameManager {
         }
     }
 
-    /* (2) Função que realiza a atualização dos estados das Entidades do jogo, como a posição do 
-     * elemento na tela.
-     */
-
     private void updateAll(long delta, long tempoAtual) {
-        /* Verifica se inimigos devem nascer. */
+        /* verifica se inimigos devem nascer. */
         spawnInvencibilidade(tempoAtual);
         spawnPowerUpTiroTriplo(tempoAtual);
         gerenciarSpawns(tempoAtual);
-        //if(!spawnouChefe) spawnEnemies(tempoAtual);
-        //spawnChefe(tempoAtual);
-        /* Atualiza o fundo. */
+        
+        
+        /* atualiza o fundo. */
         fundo.update(delta);
-        /* Atualiza os inimigos. */
+        /* atualiza os inimigos. */
         projeteisInimigos.updateProjeteis(delta);
-        for (EntidadeInimigo e : inimigos) {
-            e.update(delta);
-            e.disparar(projeteisInimigos, tempoAtual);
-        }
-        /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
+       
+        /* atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
         
@@ -313,32 +306,26 @@ public class GameManager {
         if(chefeDerrotado && faseAtual < numFase){   
             novaFase(faseAtual+1);
         }
-
-        for(Invencibilidade i : powerUps) i.update(delta);
-        for(TiroTriplo t : powerUpsTiroTriplo) t.update(delta);
-
-        Iterator<Invencibilidade> itUP = powerUps.iterator();
-        while (itUP.hasNext()) {
-            Invencibilidade i = itUP.next();
-            if(i.getEstado() == INACTIVATE) itUP.remove();
-        } 
-
-        Iterator<TiroTriplo> itTT = powerUpsTiroTriplo.iterator();
-        while (itTT.hasNext()) {
-            TiroTriplo t = itTT.next();
-            if(t.getEstado() == INACTIVATE) itTT.remove();
-        } 
-
         
-        /* Remover inimigos inativos */
+        Iterator<PowerUp> itPU = powerUPs.iterator();
+        while (itPU.hasNext()) {
+            PowerUp p = itPU.next();
+            p.update(delta);
+            if(p.getEstado() == INACTIVATE) itPU.remove();
+        } 
+
+        /* remove inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
         while (it.hasNext()) {
             EntidadeInimigo e = it.next();
+            e.update(delta);
+            e.disparar(projeteisInimigos, tempoAtual);
             if (e.getEstado() == INACTIVATE) it.remove();
         }    
     }
 
-    /* (3) Função que realiza a captura dos comados inseridos no teclado pelo usuário, atualizando assim
+
+    /* (3) realiza a captura dos comandos inseridos no teclado pelo usuário, atualizando assim
      * a posição do jogador e os tiros na tela e, possivelmente, realizando o fechamento do jogo.
      */
 
@@ -357,7 +344,8 @@ public class GameManager {
         }
     }
 
-    /* (4) Função que desenha os elementos na tela conforme o estado atual do jogo. */
+
+    /* (4) desenha os elementos na tela conforme o estado atual do jogo. */
 
     private void renderAll() {
         /* Seta a cor de fundo padrão e o tamanho da janela. */
@@ -370,14 +358,15 @@ public class GameManager {
         /* Desenha os inimigos. */
         for (EntidadeInimigo e : inimigos) e.draw();
         projeteisInimigos.drawProjeteisInimigo();
-        for (Invencibilidade pu : powerUps) pu.draw();
+        for (PowerUp p : powerUPs) p.draw();
         jogador.draw();
         if(spawnouChefe) chefe.draw();
-        for (TiroTriplo puT : powerUpsTiroTriplo) puT.draw();
         /* Apresenta o frame. */
         GameLib.display();
     }
 
+
+    /* (5) espera um intervalo de tempo. */
     private void busyWait(long target) {
         while (System.currentTimeMillis() < target) Thread.yield();
     }

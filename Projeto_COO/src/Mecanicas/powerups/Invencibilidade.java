@@ -1,87 +1,103 @@
 package Mecanicas.powerups;
 
-import static Mecanicas.constantes.Estados.ACTIVE;
-import static Mecanicas.constantes.Estados.EXPLODING;
-import static Mecanicas.constantes.Estados.INACTIVATE;
-
 import java.awt.Color;
 
-import Jogo.GameLib;
-import Mecanicas.bases.EntidadeBase;
+import Mecanicas.bases.PowerUpBase;
 import Mecanicas.constantes.Estados;
+
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.PowerUp;
+
 import Mecanicas.jogador.Jogador;
+
+import static Mecanicas.constantes.Estados.*;
+
+/* classe Invencibilidade
+ *  Classe que serve para gerenciar o powerup de tiro triplo no jogador, fazendo-o atirar três projéteis em formato de leque por um determinado tempo.     
+*/
 
 public class Invencibilidade implements Colidivel, PowerUp {
 
-    private EntidadeBase ent_base;
-    private Jogador jogador;
-    private long tempoInvencibilidade;
-    private long tempoTotal;
-    private boolean invencibilidadeAtivo;
+    private PowerUpBase pow_base;   /* Objeto para administrar as propriedades de 'Entidade'  */
     
+    private Jogador jogador;         /* Referência para o objeto jogador dentro do jogo, afim de alterá-lo. */
+
 
     public Invencibilidade(double x, double y) {
-        this.ent_base = new EntidadeBase(x, y, 10.0); // raio = 10.0
-        ent_base.setEstado(ACTIVE);
+        this.pow_base = new PowerUpBase(x, y, 10); /* Raio -> 10 */
     }
 
-    public void ativar(Jogador jogador, long tempoInvencibilidade){
+    /* Funções getters de posição, raio e estado.*/
+    
+    /* posição */
+    public double getX(){ return pow_base.getX();}
+    public double getY(){ return pow_base.getY();}
+
+    /* raio */
+    public double getRaio(){ return pow_base.getRaio();}
+
+    /* estado */
+    public Estados getEstado() { return pow_base.getEstado(); }
+
+
+    /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
+     * 
+     * (1) Ativação e desativação;
+     * (2) Aplicação;
+     * (3) Colisão;
+     * (4) Atualização e desenho.
+     * 
+    */
+    
+    /* (1) funções de ativação e desativação do efeito de tiro triplo no jogador. */
+
+    /* ativa o efeito do tiro triplo, iniciando o contador do powerup e aplicando no jogador */
+    public void ativar(Jogador jogador, long tempoTiroTriplo){
         this.jogador = jogador;
-        invencibilidadeAtivo = true;
-        this.tempoInvencibilidade = tempoInvencibilidade;
-        this.tempoTotal = tempoInvencibilidade;
+        pow_base.ativar(tempoTiroTriplo);;
         aplicar();
     }
 
+    /* desativa o efeito do tiro triplo, aplica ao jogador a mudança, e atribuindo o estado de inativo ao powerup, podendo ser assim removido */
+    public void desativar(){
+        pow_base.desativar();
+        aplicar();
+    }
+
+
+    /* (2) função que aplica o efeito ao jogador, permitindo (ou não) ele realizar o tiro triplo dentre de sua função 'disparar(long tempoAtual).' */
+
     public void aplicar(){
-        if(invencibilidadeAtivo) jogador.setCor(Color.WHITE);
+        if(pow_base.getPowerUpAtivo()) jogador.setCor(Color.WHITE);
         else jogador.setCor(Color.BLUE);
-        jogador.getVidaBase().setInvencibilidade(invencibilidadeAtivo);
+        jogador.getVidaBase().setInvencibilidade(pow_base.getPowerUpAtivo());   
+    }
+
+    
+    /* (3) funções de execução da lógica de colisão e eventual remoção do powerup.*/
+ 
+    /* calcula se uma entidade entra em colisão com outra. */ 
+    public boolean colideCom(Colidivel o){ return pow_base.colideCom(o);}
+    
+    /* atualiza o estado do powerup para explosão afim de, assim, remover o objeto físico do powerup na lógica do jogo, porém mantendo o objeto ativo 
+     * para o cálculo do tempo do efeito e o desenho da barra*/
+    public void remover() {
+        pow_base.setEstado(EXPLODING); 
+    }
+ 
+
+    /* (4) funções de atualizações do objeto de powerup e desenho (também da barra de tempo) ao longo do tempo de jogo */
+
+    /* atualiza os atributos do powerup ao longo do tempo de jogo em duas condições:
+    *  (i) caso esse tenha ultrapassado os limites do jogo, torna-se inativo;
+    *  (ii) caso o tempo do efeito tenha passado, torna-se inativo;
+    *  (iii) caso nenhuma dessas condições tenha sido alcançadas, o powerup é atualizado conforme sua lógica de movimento no jogo*/    
+    public void update(long delta) {
+        pow_base.update(delta);
     }   
 
-    public void update(long delta) {
-        if (ent_base.getY() > GameLib.HEIGHT) ent_base.setEstado(EXPLODING);
-
-        if (ent_base.getEstado() == ACTIVE) {
-            ent_base.setY(ent_base.getY() + 0.2 * delta);
-        }
-
-        if(invencibilidadeAtivo){
-            tempoInvencibilidade --;
-            if(tempoInvencibilidade <= 0){
-                invencibilidadeAtivo = false;
-                aplicar();
-                ent_base.setEstado(INACTIVATE);
-            }
-        }
-    }
-
+    /* desenha a entidade do powerup e barra de tempo, caso o efeito esteja ativo */
     public void draw() {
-        if (ent_base.getEstado() == ACTIVE) {
-            GameLib.setColor(Color.WHITE);
-            GameLib.drawCircle(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
-        }
-
-        if(invencibilidadeAtivo){
-            float porcent = (float)tempoInvencibilidade/tempoTotal;
-
-            GameLib.setColor(Color.DARK_GRAY);
-            GameLib.fillRect(80.0, GameLib.HEIGHT - 60, 100.0, 5);
-
-            GameLib.setColor(Color.WHITE);
-            GameLib.fillRect(30 + (100 * porcent) / 2, GameLib.HEIGHT - 60, 100 * porcent, 5);
-        }
+        pow_base.drawTiroTriplo();
     }
-
-    public boolean colideCom(Colidivel outro) { return ent_base.colideCom(outro);}
-
-    public void desativar() { ent_base.setEstado(EXPLODING); }
-
-    // Implementação de Colidivel
-    public double getX() { return ent_base.getX(); }
-    public double getY() { return ent_base.getY(); }
-    public double getRaio() { return ent_base.getRaio();}
-    public Estados getEstado() { return ent_base.getEstado(); }
 }

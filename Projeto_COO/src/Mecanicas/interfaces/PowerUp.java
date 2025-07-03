@@ -7,7 +7,7 @@ public interface PowerUp{
     public Estados getEstado();
     public void ativar(Jogador jogador, long duracao);
     public boolean colideCom(Colidivel outro);
-    public void desativar();
+    public void remover();
     public void update(long delta);
     public void draw();
 

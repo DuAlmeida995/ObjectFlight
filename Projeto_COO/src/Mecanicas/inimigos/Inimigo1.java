@@ -64,10 +64,10 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
     
     /* (3) funções de atualizações do Inimigo1 e desenho ao longo do tempo de jogo. */
 
-    /* atualiza os atributos do Inimigo1 ao longo do tempo de jogo em duas condições:
+    /* atualiza os atributos do Inimigo1 ao longo do tempo de jogo em três condições:
     * (i) caso esse tenha explodido, torna-se inativo;
-    * (ii) caso esse tenha ultrapassado os limites do jogo, torna-se inativo.
-    * Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
+    * (ii) caso esse tenha ultrapassado os limites do jogo, torna-se inativo;
+    * (iii) caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
     public void update(long delta) {
         /* condição (i) */
         if (entIni_base.getEstado() == EXPLODING) {

@@ -17,7 +17,7 @@ import Mecanicas.interfaces.Colidivel;
 
 public class Projetil implements Colidivel{
 
-    EntidadeBase ent_base;  /* Objeto para administrar as propriedades de 'Entidade' */
+    EntidadeBase ent_base;  /* Objeto para administrar as propriedades de 'Entidade'  */
     MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
 
     public Projetil(double x, double y, double vx, double vy, double raio) {
@@ -25,7 +25,7 @@ public class Projetil implements Colidivel{
         mov_base = new MovimentoBase(vx, vy);
     }
 
-    /* Funções getters e setters de posição e estado e getter para o raio.*/
+    /* Funções getters e setter de estado e getter de posição e raio.*/
 
     /* posicão */
     public double getX() { return ent_base.getX();}
@@ -38,21 +38,38 @@ public class Projetil implements Colidivel{
     public Estados getEstados() { return ent_base.getEstado();}
     public void setEstado(Estados estados) { ent_base.setEstado(estados);}
 
-    /* Função para verificar se o projétil está fora dos limites do jogo. */
+    
+    /* ------------------------------------------------------------- Mecânicas do Projetil ------------------------------------------------------------- 
+     * 
+     * (1) Fora da tela;
+     * (2) Colisão;
+     * (3) Atualização e desenho.
+     *  
+    */
+
+
+    /* (1) função para verificar se o projétil saiu dos limites do jogo, afim de ser removido da 'pool' de projéteis. */
+
     public boolean estaForaDaTela() {
         return (ent_base.getX() < 0 || ent_base.getX() > GameLib.WIDTH || ent_base.getY() < 0 || ent_base.getY() > GameLib.HEIGHT);
     }
 
-    /* Função que calcula se uma entidade entra em colisão com outra. */
+
+    /* (2) função de execução da lógica de colisão. */
+
+    /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro) { return ent_base.colideCom(outro);}
 
-    /*Função a ser utilizada para atualizar os atributos do projétil ao longo do tempo de jogo. */
+
+    /* (3)  funções de atualizações do projétil e desenho (de acordo com a entidade disparante) ao longo do tempo de jogo. */
+
+    /* atualiza os atributos do projétil ao longo do tempo de jogo. */
     public void update(long delta){
         ent_base.setX(ent_base.getX() + mov_base.getVX() * delta);
         ent_base.setY(ent_base.getY() + mov_base.getVY() * delta);    
     }
 
-    /* Função que desenha o projétil do jogador. */
+    /* desenha o projétil no estilo do jogador. */
     public void drawJogador() {
         GameLib.setColor(Color.GREEN);
 		GameLib.drawLine(ent_base.getX(), ent_base.getY() - 5, ent_base.getX(), ent_base.getY() + 5);
@@ -60,10 +77,9 @@ public class Projetil implements Colidivel{
 		GameLib.drawLine(ent_base.getX() + 1, ent_base.getY() - 3, ent_base.getX() + 1, ent_base.getY() + 3);
     }
 
-    /* Função que desenha o projétil dos inimigos. */
+    /* desenha o projétil no estilo do inimigo. */
     public void drawInimigo(){
 		GameLib.setColor(Color.RED);
 		GameLib.drawCircle(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
     }
-
 }

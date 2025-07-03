@@ -218,7 +218,7 @@ public class GameManager {
             if(pu.getEstado() == ACTIVE){
                 if (jogador.colideCom((Colidivel) pu)) {
                     pu.ativar(jogador, 5000); // 300 frames (~5s a 60fps)
-                    pu.desativar();
+                    pu.remover();
                 }
             }
         }
@@ -339,18 +339,21 @@ public class GameManager {
     /* (4) desenha os elementos na tela conforme o estado atual do jogo. */
 
     private void renderAll() {
-        /* Seta a cor de fundo padrão e o tamanho da janela. */
+        /* seta a cor de fundo padrão e o tamanho da janela */
         GameLib.setColor(Color.BLACK);
         GameLib.fillRect(0, 0, GameLib.WIDTH, GameLib.HEIGHT);
-        /* Desenha o fundo do jogo. */
+        /* desenha o fundo do jogo */
         fundo.drawBackground();
         fundo.drawForeground();
-        /* Desenha o jogador. */
-        /* Desenha os inimigos. */
-        for (EntidadeInimigo e : inimigos) e.draw();
-        projeteisInimigos.drawProjeteisInimigo();
-        for (PowerUp p : powerUPs) p.draw();
+        /* desenha o jogador */
         jogador.draw();
+        /* desenha os inimigos */
+        for (EntidadeInimigo e : inimigos) e.draw();
+        /* desenha os projéteis do inimigo */
+        projeteisInimigos.drawProjeteisInimigo();
+        /* desenha os powerups */
+        for (PowerUp p : powerUPs) p.draw();
+        
         if(spawnouChefe) chefe.draw();
         /* Apresenta o frame. */
         GameLib.display();

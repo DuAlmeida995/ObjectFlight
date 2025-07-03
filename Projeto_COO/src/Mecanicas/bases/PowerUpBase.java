@@ -37,6 +37,7 @@ public class PowerUpBase {
     public boolean getPowerUpAtivo() { return this.powerUpAtivo;}
     public void setPowerUpAtivo(boolean powerUpAtivo) { this.powerUpAtivo = powerUpAtivo;}
 
+    /* powerUpTempo */
     public long getPowerUpTempo() { return this.powerUpTempo;}
     public void setPowerUpTempo(long powerUpTempo) { this.powerUpTempo = powerUpTempo;}
 

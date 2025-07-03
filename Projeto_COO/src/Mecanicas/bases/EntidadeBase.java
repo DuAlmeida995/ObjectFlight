@@ -12,13 +12,13 @@ import Mecanicas.interfaces.Colidivel;
 public class EntidadeBase{
     
     private double x, y, raio; /* Coordenadas x e y, e raio (tamanho) da entidade */
-    private Estados estado; /* Estado atual da entidade (INACTIVATE, ACTIVE ou EXPLODING) */
+    private Estados estado;    /* Estado atual da entidade (INACTIVATE, ACTIVE ou EXPLODING) */
 
     public EntidadeBase(double x, double y, double raio) {
         this.x = x;
         this.y = y;
         this.raio = raio;
-        this.estado = Estados.ACTIVE; 
+        this.estado = Estados.ACTIVE; /* Ao instanciar uma entidade, ela é ativada */
     }
 
     /* Funções getters e setters para a posição, raio e o estado da entidade. */
@@ -43,6 +43,7 @@ public class EntidadeBase{
      *  
     */
 
+    
     /* (1) funções bases de gerenciamento de colisões e entrada no estado de explosão para todas as entidades do jogo. */
 
     /* calcula se uma entidade entra em colisão com outra. */

@@ -19,18 +19,27 @@ public class Chefe2 implements Chefe, Colidivel{
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
     VidaBase vid_base;               /* Objeto que adminsitra as propriedades de 'Vida Base '       */
 
-    private boolean descendo = true;
+    private boolean descendo ;
+    
+    private double posDestinoX;
+    private double posDestinoY;
 
-    private double posDestinoX = 0;
-    private double posDestinoY = 0;
-    private long tempoDeEspera = 0;
-    private int quantDeMov     = 3;
-    private int contadorDeMov  = 0;
-    private boolean esperando  = false;
+    private long tempoDeEspera;
+    private int quantDeMov;
+    private int contadorDeMov;
+    
+    private boolean esperando;
 
     public Chefe2(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual, int vidaMaxima) {
-        entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
-        vid_base = new VidaBase(vidaMaxima);
+        entIni_base   = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
+        vid_base      = new VidaBase(vidaMaxima);
+        descendo      = true;
+        posDestinoX   = 0;
+        posDestinoY   = 0;
+        tempoDeEspera = 0;
+        quantDeMov    = 3;
+        contadorDeMov = 0;
+        esperando     = false;
         entIni_base.setEstado(ACTIVE);
     }
     
@@ -54,6 +63,7 @@ public class Chefe2 implements Chefe, Colidivel{
      * 
     */
 
+    
     /* (1) funções básicas de controle da vida do Jogador. */
 
     public void reduzir() { vid_base.reduzir();}
@@ -67,7 +77,7 @@ public class Chefe2 implements Chefe, Colidivel{
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
     /* atualiza os atributos do jogador caso este exploda. */
-    public void emColisao(){ entIni_base.emExplosao();}
+    public void emExplosao(){ entIni_base.emExplosao();}
 
 
     /* (3) funções de atualizações do Chefe2 e desenho ao longo do tempo de jogo. */
@@ -78,16 +88,14 @@ public class Chefe2 implements Chefe, Colidivel{
     *  O Chefe2 causa dano interagindo fisicamente com o Jogador, isto é, ele não atira e segue o jogador para lhe causar dano.
     *  Além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do Chefe2 */
     public void update(long delta, double posJogadorX, double posJogadorY) {
+        /* condição (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
-        
         if(entIni_base.getEstado() == ACTIVE){
-            vid_base.updateInvencibilidade();
-
             /* O Chefe entra no cenário do jogo descendo lentamente até certa posição. */
             if(descendo){
                 double novoY = entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0);
@@ -111,11 +119,9 @@ public class Chefe2 implements Chefe, Colidivel{
             else{
                 /* Aumento das tentativas de movimentos. */
                 if(vid_base.getVidaAtual() == vid_base.getVidaMaxima()/2) quantDeMov = 5;
-
                 /* Conforme o Chefe2 toma dano, ele aumenta seu tamanho e sua velocidade. */
-                entIni_base.setRaio(vid_base.getVidaMaxima() - vid_base.getVidaAtual()/2);
+                entIni_base.setRaio((vid_base.getVidaMaxima() - vid_base.getVidaAtual()/2)/(vid_base.getVidaMaxima()/100));
                 entIni_base.setV(1.1 - (double)(vid_base.getVidaAtual()/(vid_base.getVidaMaxima()*3)));
-
                 /*Tempo de espera entre as sequências de perseguições. */
                 if(esperando){
                     if(System.currentTimeMillis() - tempoDeEspera >= 3000){
@@ -127,26 +133,28 @@ public class Chefe2 implements Chefe, Colidivel{
                 } 
                 /* Realiza a perseguição ao Jogador. */
                 else if(contadorDeMov < quantDeMov){
-                        double dx = posDestinoX - entIni_base.getX();
-                        double dy = posDestinoY - entIni_base.getY();
-                        double distancia = Math.sqrt(dx * dx + dy * dy);
-                        if(distancia > entIni_base.getV()){
-                            entIni_base.setX(entIni_base.getX() + entIni_base.getV()*(dx/distancia));
-                            entIni_base.setY(entIni_base.getY() + entIni_base.getV()*(dy/distancia));
+                    double dx = posDestinoX - entIni_base.getX();
+                    double dy = posDestinoY - entIni_base.getY();
+                    double distancia = Math.sqrt(dx * dx + dy * dy);
+                    if(distancia > entIni_base.getV()){
+                        entIni_base.setX(entIni_base.getX() + entIni_base.getV()*(dx/distancia));
+                        entIni_base.setY(entIni_base.getY() + entIni_base.getV()*(dy/distancia));
+                    }else{
+                        entIni_base.setX(posDestinoX);
+                        entIni_base.setY(posDestinoY);
+                        contadorDeMov ++;
+                        if(contadorDeMov < quantDeMov){
+                            posDestinoX = posJogadorX;
+                            posDestinoY = posJogadorY;    
                         }else{
-                            entIni_base.setX(posDestinoX);
-                            entIni_base.setY(posDestinoY);
-                            contadorDeMov ++;
-                            if(contadorDeMov < quantDeMov){
-                                posDestinoX = posJogadorX;
-                                posDestinoY = posJogadorY;    
-                            }else{
-                                tempoDeEspera = System.currentTimeMillis();
-                                esperando = true;
-                            }
+                            tempoDeEspera = System.currentTimeMillis();
+                            esperando = true;
                         }
                     }
-            }   
+                }
+            }  
+            /* atualiza o tempo de invencibilidade do Chefe2*/
+            vid_base.updateInvencibilidade();
         }  
     }
 
@@ -159,13 +167,16 @@ public class Chefe2 implements Chefe, Colidivel{
 
         } else if(entIni_base.getEstado() == ACTIVE) {
             if(descendo == false) vid_base.drawVidaChefe();
-
             GameLib.setColor(Color.ORANGE);
+            /* traços da boca */
             GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() - 30);
             GameLib.drawLine(entIni_base.getX(), entIni_base.getY(), entIni_base.getX() + entIni_base.getRaio() - 8, entIni_base.getY() + 30);
+            /* olho */
             GameLib.drawCircle(entIni_base.getX() - 20 , entIni_base.getY() - 20 , entIni_base.getRaio()/8);
+            /* corpo */
             GameLib.drawCircle(entIni_base.getX(), entIni_base.getY(), entIni_base.getRaio());
             GameLib.setColor(Color.BLACK);
+            /* quadrado preto para realizar a abertura da boca na circunferência */
             GameLib.fillRect(entIni_base.getX() + entIni_base.getRaio(), entIni_base.getY(), 14, 60);
         }
     }

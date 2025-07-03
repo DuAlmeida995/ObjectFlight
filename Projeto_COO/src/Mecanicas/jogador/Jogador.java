@@ -10,6 +10,7 @@ import Mecanicas.bases.ExplosaoBase;
 import Mecanicas.bases.MovimentoBase;
 import Mecanicas.bases.VidaBase;
 import Mecanicas.bases.DisparadorBase;
+
 import Mecanicas.constantes.Estados;
 import static Mecanicas.constantes.Estados.*;
 
@@ -17,20 +18,21 @@ import Mecanicas.interfaces.Colidivel;
 
 import Mecanicas.projetil.*;
 
+
 /* class Jogador
  * Classe que implementa a entidade de jogador no jogo.
 */
 
 public class Jogador implements Colidivel{
 
-    DisparadorBase ati_base;  /* Objeto para administrar as propriedades de 'Atirador'  */
-    EntidadeBase ent_base;  /* Objeto para administrar as propriedades de 'Entidade'  */
-    ExplosaoBase exp_base;  /* Objeto para administrar as propriedades de 'Explosao'  */
-    MovimentoBase mov_base; /* Objeto para administrar as propriedades de 'Movimento' */
-    VidaBase vid_base;      /* Objeto para administrar as propriedades de 'Vida'      */
+    DisparadorBase ati_base; /* Objeto para administrar as propriedades de 'Atirador'  */
+    EntidadeBase ent_base;   /* Objeto para administrar as propriedades de 'Entidade'  */
+    ExplosaoBase exp_base;   /* Objeto para administrar as propriedades de 'Explosao'  */
+    MovimentoBase mov_base;  /* Objeto para administrar as propriedades de 'Movimento' */
+    VidaBase vid_base;       /* Objeto para administrar as propriedades de 'Vida'      */
     
-    private boolean tiroTriploAtivo = false;
-    private long tempoFimTiroTriplo;
+    private boolean tiroTriploAtivo;
+    private Color jogadorCor = Color.BLUE;
 
     public Jogador(double x, double y, long tempoAtual, int vidaMaxima) {
         ent_base = new EntidadeBase(x,y,12);                      /* Raio -> 12 */ 
@@ -38,6 +40,7 @@ public class Jogador implements Colidivel{
         exp_base = new ExplosaoBase(0, 0);
         ati_base = new DisparadorBase(tempoAtual + 100);                 /* Cadência dos disparos dos projéteis de 100 ms */
         vid_base = new VidaBase(vidaMaxima);
+        tiroTriploAtivo = false;
     }
 
     /* Funções getters e setters de posição e um getter para raio, velocidade no eixo X e eixo Y, estado e lista de projéteis.*/
@@ -58,40 +61,34 @@ public class Jogador implements Colidivel{
     /* estado */
     public Estados getEstado(){ return ent_base.getEstado();}
 
+    public VidaBase getVidaBase(){ return vid_base;}
+
+    public void setTiroTriplo(boolean tiroTriploAtivo){ this.tiroTriploAtivo = tiroTriploAtivo;}
+
+    public void setCor(Color cor){ this.jogadorCor = cor;}
     /* 'pool' de projéteis */
     public List<Projetil> getProjetilPool(){ return ati_base.getProjeteis();}
 
     /* ------------------------------------------------------------- Mecânicas do Jogador ------------------------------------------------------------- 
      * 
      * (1) Vida;
-     * (2) Power Up's; 
-     * (3) Colisão;
-     * (4) Atirar;
-     * (5) Atualização e desenho;
+     * (2) Colisão;
+     * (3) Atirar;
+     * (4) Atualização e desenho;
      * 
     */
+    
     
     /* (1) funções básicas de controle da vida do Jogador. */
 
     public boolean estaMorto() { return vid_base.estaMorto();}
     public boolean estaInvencivel() { return vid_base.estaInvencivel();}
-
     public void tomaDano(){
         vid_base.reduzir();
         if(vid_base.estaMorto()){
             emExplosao();
             vid_base.resetar();
         }
-    }
-
-    /* (2) funções de ativações dos power up's de: Invencibilidade e TiroTriplo */
-
-    public void ativarInvencibilidadePorPowerUp(int duracao) {
-        vid_base.ativarInvencibilidadeTemporaria(duracao);
-    }
-    public void ativarTiroTriplo(int duracao) {
-        tiroTriploAtivo = true;
-        tempoFimTiroTriplo = System.currentTimeMillis() + duracao;
     }
 
 
@@ -124,7 +121,7 @@ public class Jogador implements Colidivel{
 
     /* atualiza os atributos do jogador ao longo do tempo de jogo em duas condições:
     *  (i) caso esse tenha explodido e, passado o tempo da explosão, renasce;
-    *  (ii) caso, ao calcular o input do usuário, o jogador não saia da tela do jogo.
+    *  (ii) caso, ao calcular o input do usuário, o jogador tente ultrapassar a tela do jogo.
     *  Além disso, atualiza a lógica de invencibilidade dos frames para o cálculo de redução de vida do jogador.*/
     public void update(long tempoAtual){
         /* condição (i) */
@@ -138,7 +135,7 @@ public class Jogador implements Colidivel{
 		if(ent_base.getX() >= GameLib.WIDTH) ent_base.setX(GameLib.WIDTH - 1);
 		if(ent_base.getY() < 25.0) ent_base.setY(25.0);
 		if(ent_base.getY() >= GameLib.HEIGHT) ent_base.setY(GameLib.HEIGHT - 1);
-    
+        /* atualiza o tempo de invencibilidade do jogador */
         vid_base.updateInvencibilidade();
     }
 
@@ -152,7 +149,7 @@ public class Jogador implements Colidivel{
                         (double) (exp_base.getexplosaoFim() - exp_base.getexplosaoComeco());
             GameLib.drawExplosion(ent_base.getX(), ent_base.getY(), alpha);
         } else {
-            GameLib.setColor(Color.BLUE);
+            GameLib.setColor(jogadorCor);
             GameLib.drawPlayer(ent_base.getX(), ent_base.getY(), ent_base.getRaio());
         }
         ati_base.drawProjeteisJogador();

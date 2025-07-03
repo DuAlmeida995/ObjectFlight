@@ -21,10 +21,10 @@ public class ProjetilPool {
     }
 
     /* Função atualizar os atributos dos projéteis guardado na 'pool' ao longo do tempo de jogo. */
-    public void update(long deltaTime) {
+    public void update(long delta) {
         projeteis.removeIf(p -> p.estaForaDaTela());
         for (Projetil p : projeteis) {
-            p.update(deltaTime);
+            p.update(delta);
         }
     }
 

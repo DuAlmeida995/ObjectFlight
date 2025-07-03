@@ -3,7 +3,7 @@ package Mecanicas.bases;
 import java.util.List;
 import Mecanicas.projetil.*;
 
-/* class AtiradorBase
+/* class DisparadorBase 
  * Classe que serve de base a funcionalidade de disparo das entidades do jogo.
 */
 

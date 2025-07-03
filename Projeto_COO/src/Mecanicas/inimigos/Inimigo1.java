@@ -13,6 +13,7 @@ import static Mecanicas.constantes.Estados.*;
 /* class Inimigo1
  * Classe que implementa a entidade de inimigo tipo 1 no jogo.
 */
+
 public class Inimigo1 implements EntidadeInimigo, Colidivel{
     
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
@@ -41,13 +42,14 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
      * 
     */
 
+    
     /* (1) funções de execução da lógica de colisão e eventual explosão do Inimigo1. 
 
     /* calcula se uma entidade entra em colisão com outra. */    
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
     /* atualiza os atributos do Inimigo1 caso este exploda. */
-    public void emColisao(){entIni_base.emExplosao();}
+    public void emExplosao(){entIni_base.emExplosao();}
 
 
     /* (2) função que faz com que o Inimigo1 atire um projétil, inserindo este na 'pool' de projéteis de inimigos do jogo. */
@@ -67,18 +69,19 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
     * (ii) caso esse tenha ultrapassado os limites do jogo, torna-se inativo.
     * Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
     public void update(long delta) {
+        /* condição (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
-
-         if (entIni_base.getY() > GameLib.HEIGHT + entIni_base.getRaio()) {
+        /* condição (ii) */
+        if (entIni_base.getY() > GameLib.HEIGHT + entIni_base.getRaio()) {
             entIni_base.setEstado(INACTIVATE);
             return;
         }
-        
+        /* movimenta somente no eixo vertical, descendo na tela */
         entIni_base.setX(entIni_base.getX() + Math.cos(entIni_base.getAngulo()) * entIni_base.getV() * delta);
         entIni_base.setY(entIni_base.getY() + Math.sin(entIni_base.getAngulo()) * entIni_base.getV() * delta * (-1.0));
         entIni_base.setAngulo(entIni_base.getAngulo() + entIni_base.getVR() * delta);
@@ -86,7 +89,6 @@ public class Inimigo1 implements EntidadeInimigo, Colidivel{
 
     /* desenha o Inimigo1. */
     public void draw() {
-
         if (entIni_base.getEstado() == EXPLODING) {
             double alpha = (System.currentTimeMillis() - entIni_base.getexplosaoComeco()) / 
                         (double) (entIni_base.getexplosaoFim() - entIni_base.getexplosaoComeco());

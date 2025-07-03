@@ -3,25 +3,35 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
+
 import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
+
 import Mecanicas.constantes.Estados;
+import static Mecanicas.constantes.Estados.*;
+
 import Mecanicas.interfaces.Colidivel;
 import Mecanicas.interfaces.EntidadeInimigo;
 
-import static Mecanicas.constantes.Estados.*;
+
+/* class Inimigo2
+ * Classe que implementa a entidade de inimigo tipo 2 no jogo.
+*/
 
 public class Inimigo2 implements EntidadeInimigo, Colidivel{
 
     EntidadeInimigoBase entIni_base; /* Objeto que administra as propriedades de 'Entidade Inimigo' */
 
-    private boolean rotacaoCompleta = false;
-    private boolean deveDisparar = false;
+    private boolean rotacaoCompleta;
+    private boolean deveDisparar;
     private double anteriorY;
-    private double threshold = GameLib.HEIGHT * 0.30;
+    private double threshold ;
 
     public Inimigo2(double x, double y, double v, double angulo, double raio, double vr, long tempoAtual) {
-        entIni_base = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
+        entIni_base     = new EntidadeInimigoBase(x, y, v, angulo, raio, vr, tempoAtual);
+        rotacaoCompleta = false;
+        deveDisparar    = false;
+        threshold       = GameLib.HEIGHT * 0.30;
     }
 
     /* Funções getters de posição, raio e estado.*/
@@ -44,13 +54,14 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
      * 
     */
 
+
     /* (1) funções de execução da lógica de colisão e eventual explosão do Inimigo2 */
 
     /* calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro){ return entIni_base.colideCom(outro);}
 
     /* atualiza os atributos do Inimigo2 caso este exploda. */
-    public void emColisao(){entIni_base.emExplosao();}
+    public void emExplosao(){entIni_base.emExplosao();}
 
 
     /* (2) função que faz com que o Inimigo2 atire projéteis, inserindo estes na 'pool' de projéteis de inimigos do jogo. */
@@ -79,29 +90,30 @@ public class Inimigo2 implements EntidadeInimigo, Colidivel{
     }
 
 
-     /* (3) funções de atualizações do Inimigo2 e desenho ao longo do tempo de jogo. */
+    /* (3) funções de atualizações do Inimigo2 e desenho ao longo do tempo de jogo. */
 
     /* atualiza os atributos do Inimigo2 ao longo do tempo de jogo em duas condições:
     *  (i) caso esse tenha explodido, torna-se inativo;
     *  (ii) caso esse tenha ultrapassado os limites do jogo.
     *  Caso nenhuma dessas condições tenha sido alcançadas, o inimigo é atualizado conforme sua lógica de movimento no jogo. */
     public void update(long deltaTime) {
+        /* condição (i) */
         if (entIni_base.getEstado() == EXPLODING) {
             if (System.currentTimeMillis() > entIni_base.getexplosaoFim()) {
                 entIni_base.setEstado(INACTIVATE);
             }
             return;
         }
+        /* condição (ii) */
         if(entIni_base.getX() < - 10 || entIni_base.getX() > GameLib.WIDTH + 10){
             entIni_base.setEstado(INACTIVATE);
             return;
         }
-
+        /* movimenta-se entrando na tela no sentido vertical para baixo, realizando uma rotação e saindo da tela */
         anteriorY = entIni_base.getY();
         entIni_base.setX(entIni_base.getX() + entIni_base.getV()*Math.cos(entIni_base.getAngulo()) * deltaTime);
         entIni_base.setY(entIni_base.getY() + entIni_base.getV()*Math.sin(entIni_base.getAngulo()) * deltaTime * (-1.0));
         entIni_base.setAngulo(entIni_base.getAngulo() + entIni_base.getVR() * deltaTime);
-
         if (!rotacaoCompleta) {
             if(anteriorY < threshold && entIni_base.getY() >= threshold){
             if(entIni_base.getX() < GameLib.WIDTH / 2) entIni_base.setVR(0.003);

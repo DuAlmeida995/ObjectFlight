@@ -8,9 +8,10 @@ public class VidaBase {
     private int vidaMaxima;
     private int vidaAtual;
     private boolean invencivel = false;
+    private boolean invencibilidade = false;
 
     private long tempoInvencivel = 0;
-    //private int DURACAO_INVENCIVEL = 60;
+    private long DURACAO_INVENCIVEL = 60;
 
     public VidaBase(int vidaMaxima) {
         this.vidaMaxima = vidaMaxima;
@@ -23,6 +24,13 @@ public class VidaBase {
 
     public void setVidaMaxima(int vidaMaxima){ this.vidaMaxima = vidaMaxima;}
 
+    public long getTempoInvencibilidade(){ return this.tempoInvencivel;}
+
+    public void setInvencibilidade(boolean invencibilidade){ 
+        this.invencivel = invencibilidade;
+        this.invencibilidade = invencibilidade;
+    }
+
     public boolean estaMorto() {
         return vidaAtual == 0;
     }
@@ -33,28 +41,33 @@ public class VidaBase {
 
     public void reduzir() {
         invencivel = true;
-        tempoInvencivel = System.currentTimeMillis() + 1000;
+        tempoInvencivel = DURACAO_INVENCIVEL;
         vidaAtual--;
-        if (vidaAtual < 0) vidaAtual = 0;
+        if (vidaAtual < 0) vidaAtual = 0; 
     }
 
     public void resetar() {
         vidaAtual = vidaMaxima;
     }
 
-   /*  public void updateInvencibilidade(){
-        if(invencivel){
-            tempoInvencivel --;
-            if(tempoInvencivel <= 0){
-                invencivel = false;
+    public void updateInvencibilidade(){
+        if(!invencibilidade){
+            if(invencivel){
+                tempoInvencivel --;
+                if(tempoInvencivel <= 0){
+                    invencivel = false;
+                }
             }
         }
-    } */
+    } 
 
-    public void ativarInvencibilidadeTemporaria(int duracao) {
-        this.invencivel = true;
-        this.tempoInvencivel = System.currentTimeMillis() + duracao;
+    /*
+    public void updateInvencibilidade() {
+        if (invencivel && System.currentTimeMillis() > tempoInvencivel) {
+            invencivel = false;
+        }
     }
+    */
 
     public void drawVidaJogador() {
         float porcent = (float) vidaAtual / vidaMaxima;
@@ -64,13 +77,9 @@ public class VidaBase {
 
         GameLib.setColor(Color.RED);
         GameLib.fillRect(30 + (100 * porcent) / 2, GameLib.HEIGHT - 25, 100 * porcent, 20.0);
+        
     }
 
-    public void updateInvencibilidade() {
-        if (invencivel && System.currentTimeMillis() > tempoInvencivel) {
-            invencivel = false;
-        }
-    }
 
     public void drawVidaChefe () {
         float porcent = (float) vidaAtual / vidaMaxima;

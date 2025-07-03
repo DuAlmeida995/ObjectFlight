@@ -45,6 +45,7 @@ public class EntidadeBase{
         return distancia < (getRaio() + o.getRaio()) * 0.8;
     }
 
+    /* Função que atualiza os atributos das entidades, entrando em estado de explosão. */
     public void emExplosao(ExplosaoBase exp_base, long tempoExplosao){
         this.estado = EXPLODING;
         exp_base.setExplosaoComeco(System.currentTimeMillis());

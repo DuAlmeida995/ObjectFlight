@@ -11,9 +11,12 @@ public interface EntidadeInimigo{
     public Estados getEstado();
     public double getX();
     public double getY();
+    
     public void disparar(DisparadorBase projeteisInimigos, long tempoAtual);
+    
     public boolean colideCom(Colidivel outro);
-    public void emColisao();
-    public void draw();
+    public void emExplosao();
+    
     public void update(long delta);
+    public void draw();
 }

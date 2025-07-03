@@ -84,7 +84,7 @@ public class GameManager {
         this.powerUps                  = new ArrayList<>();
         this.proximoPowerUp            = System.currentTimeMillis() + 1000;
         this.powerUpsTiroTriplo        = new ArrayList<>();
-        this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 5000;
+        this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 1000;
         this.inimigos                  = new ArrayList<>();
         this.projeteisInimigos         = new DisparadorBase(tempoAtual + 500);
         this.fundo                     = new BackgroundEstrela();      
@@ -196,7 +196,7 @@ public class GameManager {
             for (EntidadeInimigo e : inimigos) {
                 if(e.getEstado() == ACTIVE){
                     if (e.colideCom(p)) {
-                        e.emColisao();
+                        e.emExplosao();
                     }
                 }
             }
@@ -204,23 +204,27 @@ public class GameManager {
                 if(chefe.colideCom(p)){
                     chefe.reduzir();
                     if(chefe.estaMorto()){
-                        chefe.emColisao();
+                        chefe.emExplosao();
                     }
                 }
             }
         }
-
+        
         for (Invencibilidade pu : powerUps) {
-            if (jogador.colideCom(pu)) {
-                jogador.ativarInvencibilidadePorPowerUp(10000); // 300 frames (~5s a 60fps)
-                pu.desativar();
+            if(pu.getEstado() == ACTIVE){
+                if (jogador.colideCom(pu)) {
+                    pu.ativar(jogador, 5000); // 300 frames (~5s a 60fps)
+                    pu.desativar();
+                }
             }
         }
-
+        
         for (TiroTriplo puT : powerUpsTiroTriplo) {
-            if (jogador.colideCom(puT)) {
-                jogador.ativarTiroTriplo(10000); // dura 10s
-                puT.desativar();
+            if(puT.getEstado() == ACTIVE){
+                if (jogador.colideCom(puT)) {
+                    puT.ativar(jogador, 5000); // dura 10s
+                    puT.desativar();
+                }
             }
         }
     }
@@ -230,7 +234,7 @@ public class GameManager {
             double x = Math.random() * (GameLib.WIDTH - 20) + 10;  // Posição X aleatória dentro da tela
             double y = -10; // Spawnar acima da tela, para descer depois
             powerUps.add(new Invencibilidade(x, y));
-            proximoPowerUp = tempoAtual + 10000; // Spawn a cada 15 segundos (ajuste como quiser)
+            proximoPowerUp = tempoAtual + 15000; // Spawn a cada 15 segundos (ajuste como quiser)
         }
     }
 
@@ -239,7 +243,7 @@ public class GameManager {
             double x = Math.random() * (GameLib.WIDTH - 20) + 10;
             double y = -10;
             powerUpsTiroTriplo.add(new TiroTriplo(x, y));
-            proximoPowerUpTiroTriplo = tempoAtual + 30000; // novo spawn a cada 30s
+            proximoPowerUpTiroTriplo = tempoAtual + 15000; // novo spawn a cada 30s
         }
     }
 
@@ -297,8 +301,6 @@ public class GameManager {
         /* Atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
-
-        for (Invencibilidade pu : powerUps) pu.update(delta);
         
         if(spawnouChefe){
             chefe.update(delta, jogador.getX(), jogador.getY());
@@ -312,8 +314,22 @@ public class GameManager {
             novaFase(faseAtual+1);
         }
 
-        for (TiroTriplo puT : powerUpsTiroTriplo) puT.update(delta);
+        for(Invencibilidade i : powerUps) i.update(delta);
+        for(TiroTriplo t : powerUpsTiroTriplo) t.update(delta);
 
+        Iterator<Invencibilidade> itUP = powerUps.iterator();
+        while (itUP.hasNext()) {
+            Invencibilidade i = itUP.next();
+            if(i.getEstado() == INACTIVATE) itUP.remove();
+        } 
+
+        Iterator<TiroTriplo> itTT = powerUpsTiroTriplo.iterator();
+        while (itTT.hasNext()) {
+            TiroTriplo t = itTT.next();
+            if(t.getEstado() == INACTIVATE) itTT.remove();
+        } 
+
+        
         /* Remover inimigos inativos */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
         while (it.hasNext()) {

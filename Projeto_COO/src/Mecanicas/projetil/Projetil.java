@@ -6,7 +6,9 @@ import Jogo.GameLib;
 
 import Mecanicas.bases.EntidadeBase;
 import Mecanicas.bases.MovimentoBase;
+
 import Mecanicas.constantes.Estados;
+
 import Mecanicas.interfaces.Colidivel;
 
 /* class Projetil
@@ -21,10 +23,9 @@ public class Projetil implements Colidivel{
     public Projetil(double x, double y, double vx, double vy, double raio) {
         ent_base = new EntidadeBase(x,y, raio);
         mov_base = new MovimentoBase(vx, vy);
-
     }
 
-    /* Funções getters e setters de posição, raio e estado.*/
+    /* Funções getters e setters de posição e estado e getter para o raio.*/
 
     /* posicão */
     public double getX() { return ent_base.getX();}
@@ -39,14 +40,13 @@ public class Projetil implements Colidivel{
 
     /* Função para verificar se o projétil está fora dos limites do jogo. */
     public boolean estaForaDaTela() {
-        return (ent_base.getX() < 0 || ent_base.getX() > GameLib.WIDTH || 
-        ent_base.getY() < 0 || ent_base.getY() > GameLib.HEIGHT);
+        return (ent_base.getX() < 0 || ent_base.getX() > GameLib.WIDTH || ent_base.getY() < 0 || ent_base.getY() > GameLib.HEIGHT);
     }
 
     /* Função que calcula se uma entidade entra em colisão com outra. */
     public boolean colideCom(Colidivel outro) { return ent_base.colideCom(outro);}
 
-     /*Função a ser utilizada para atualizar os atributos do projétil ao longo do tempo de jogo. */
+    /*Função a ser utilizada para atualizar os atributos do projétil ao longo do tempo de jogo. */
     public void update(long delta){
         ent_base.setX(ent_base.getX() + mov_base.getVX() * delta);
         ent_base.setY(ent_base.getY() + mov_base.getVY() * delta);    

@@ -3,12 +3,15 @@ package Mecanicas.inimigos;
 import java.awt.Color;
 
 import Jogo.GameLib;
+
 import Mecanicas.bases.DisparadorBase;
 import Mecanicas.bases.EntidadeInimigoBase;
+
 import Mecanicas.constantes.Estados;
+import static Mecanicas.constantes.Estados.*;
+
 import Mecanicas.interfaces.*;
 
-import static Mecanicas.constantes.Estados.*;
 
 /* class Inimigo1
  * Classe que implementa a entidade de inimigo tipo 1 no jogo.

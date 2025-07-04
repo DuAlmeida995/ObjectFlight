@@ -1,15 +1,19 @@
-package Mecanicas.background;
+package Mecanicas.fundo;
 
 import java.awt.Color;
 import java.util.Random;
 import Jogo.GameLib;
 
-public class BackgroundEstrela {
+/* classe FundoEstrela
+ * Classe que gerencia o fundo do jogo, armazenando as unidades de estrelas e desenhando o fundo
+*/
+
+public class FundoEstrela {
     private final double[] bg1X, bg1Y, bg2X, bg2Y;
     private final double bg1Speed = 0.070, bg2Speed = 0.045;
     private double bg1Count = 0, bg2Count = 0;
 
-    public BackgroundEstrela() {
+    public FundoEstrela() {
         int qtd1 = 20, qtd2 = 50;
         bg1X = new double[qtd1]; bg1Y = new double[qtd1];
         bg2X = new double[qtd2]; bg2Y = new double[qtd2];
@@ -24,12 +28,12 @@ public class BackgroundEstrela {
         }
     }
 
-    public void update(long delta) {
+    public void atualiza(long delta) {
         bg2Count += bg2Speed * delta;
         bg1Count += bg1Speed * delta;
     }
 
-    public void drawBackground() {
+    public void desenhaSegundoFundo() {
         GameLib.setColor(Color.DARK_GRAY);
         for (int i = 0; i < bg2X.length; i++) {
             double y = (bg2Y[i] + bg2Count) % GameLib.HEIGHT;
@@ -37,7 +41,7 @@ public class BackgroundEstrela {
         }
     }
 
-    public void drawForeground() {
+    public void desenhaPrimeiroFundo() {
         GameLib.setColor(Color.GRAY);
         for (int i = 0; i < bg1X.length; i++) {
             double y = (bg1Y[i] + bg1Count) % GameLib.HEIGHT;

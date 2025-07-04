@@ -45,7 +45,7 @@ public class Chefe1 implements Chefe, Colidivel{
     public double getRaio() { return entIni_base.getRaio();}
 
     /* estado */
-    public Estados getEstados(){ return entIni_base.getEstado();}
+    public Estados getEstado(){ return entIni_base.getEstado();}
 
     /* ------------------------------------------------------------- Mecânicas do Chefe1 ------------------------------------------------------------- 
      * 

@@ -8,7 +8,7 @@ import Mecanicas.constantes.Estados;
 */
 
 public interface Chefe {
-    public Estados getEstados();
+    public Estados getEstado();
     
     public boolean estaInvencivel();
     public void reduzir();

@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import Mecanicas.background.BackgroundEstrela;
-
 import Mecanicas.bases.DisparadorBase;
 
 import Jogo.carregadores.*;
@@ -18,6 +16,8 @@ import static Mecanicas.constantes.Estados.*;
 import Mecanicas.inimigos.*;
 
 import Mecanicas.interfaces.*;
+
+import Mecanicas.fundo.FundoEstrela;
 
 import Mecanicas.jogador.*;
 
@@ -39,7 +39,7 @@ public class GameManager {
     private Chefe chefe;
     private DisparadorBase projeteisInimigos;
 
-    private BackgroundEstrela fundo;
+    private FundoEstrela fundo;
     
     private CarregadorJogo car_jogo;
     private CarregadorFase car_fase;
@@ -90,7 +90,7 @@ public class GameManager {
         this.proximoPowerUpTiroTriplo  = System.currentTimeMillis() + 8000;
         this.inimigos                  = new ArrayList<>();
         this.projeteisInimigos         = new DisparadorBase(tempoAtual + 500);
-        this.fundo                     = new BackgroundEstrela();      
+        this.fundo                     = new FundoEstrela();      
     }
 
     private void carregarJogo(String arquivo){
@@ -193,8 +193,9 @@ public class GameManager {
                     jogador.tomaDano();
                 }
             }
-
+            /* Jogador x Chefe */
             if(spawnouChefe){
+                if(chefe.getEstado() == ACTIVE)
                 if(jogador.colideCom((Colidivel) chefe)){
                     jogador.tomaDano();
                 }
@@ -209,6 +210,7 @@ public class GameManager {
                     }
                 }
             }
+            /* Projéteis do jogador x chefe */
             if(spawnouChefe && !chefe.estaInvencivel()){
                 if(chefe.colideCom(p)){
                     chefe.reduzir();
@@ -218,7 +220,7 @@ public class GameManager {
                 }
             }
         }
-        
+        /* Jogador x powerup */
         for (PowerUp pu : powerUPs) {
             if(pu.getEstado() == ACTIVE){
                 if (jogador.colideCom((Colidivel) pu)) {
@@ -246,7 +248,7 @@ public class GameManager {
     }
 
 
-    private void gerenciarSpawns(long tempoAtual){
+    private void spawnInimigos(long tempoAtual){
         if(!spawnouChefe){
             if (tempoAtual > tempoSpawnInimigo1) {
                 inimigos.add(new Inimigo1(Math.random() * (GameLib.WIDTH - 20.0) + posicaoXInimigo1, posicaoYInimigo1 *(-1.0), 0.20 + Math.random() * 0.15, (3 * Math.PI) / 2, 9.0, 0.0, tempoAtual));
@@ -279,38 +281,29 @@ public class GameManager {
     }
 
     private void updateAll(long delta, long tempoAtual) {
-        /* verifica se inimigos devem nascer. */
+        /* verifica se inimigos devem nascer */
+        spawnInimigos(tempoAtual);
+
+        /* verifica se powerups devem nascer */
         spawnPowerUP(tempoAtual);
-        gerenciarSpawns(tempoAtual);
+
         /* atualiza o fundo. */
-        fundo.update(delta);
-        /* atualiza os inimigos. */
-        projeteisInimigos.updateProjeteis(delta);
-       
-        /* atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão). */
+        fundo.atualiza(delta);
+
+        /* atualiza o jogador (caso saia da tela ou tenha finalizado a sua explosão) e seus projéteis. */
         jogador.update(tempoAtual);
         jogador.updateProjeteis(delta);
         
+        /* atualiza o chefe e realiza disparo. Se este morreu, atualiza o estado do jogo */
         if(spawnouChefe){
             chefe.update(delta, jogador.getX(), jogador.getY());
             chefe.disparar(projeteisInimigos, tempoAtual);
-            if(chefe.getEstados() == INACTIVATE){
+            if(chefe.getEstado() == INACTIVATE){
                 chefeDerrotado = true;
             }
         }
 
-        if(chefeDerrotado && faseAtual < numFase){   
-            novaFase(faseAtual+1);
-        }
-        
-        Iterator<PowerUp> itPU = powerUPs.iterator();
-        while (itPU.hasNext()) {
-            PowerUp p = itPU.next();
-            p.update(delta);
-            if(p.getEstado() == INACTIVATE) itPU.remove();
-        } 
-
-        /* remove inimigos inativos */
+        /* atualiza os inimigos e realiza disparos. Se algum inimigo tenha morrido, é removido da lista */
         Iterator<EntidadeInimigo> it = inimigos.iterator();
         while (it.hasNext()) {
             EntidadeInimigo e = it.next();
@@ -318,6 +311,22 @@ public class GameManager {
             e.disparar(projeteisInimigos, tempoAtual);
             if (e.getEstado() == INACTIVATE) it.remove();
         }    
+        
+        /* atualiza os disparos dos inimigos */
+        projeteisInimigos.updateProjeteis(delta);
+        
+        /* atualiza os powerup. Se este forem capturados e terem o tempo de efeito passado, é removido da lista */
+        Iterator<PowerUp> itPU = powerUPs.iterator();
+        while (itPU.hasNext()) {
+            PowerUp p = itPU.next();
+            p.update(delta);
+            if(p.getEstado() == INACTIVATE) itPU.remove();
+        } 
+
+        /* caso o chefe tenha sido derrotado e tenha mais um fase a ser processada, carrega a fase seguinte */
+        if(chefeDerrotado && faseAtual < numFase){   
+            novaFase(faseAtual+1);
+        }
     }
 
 
@@ -347,19 +356,26 @@ public class GameManager {
         /* seta a cor de fundo padrão e o tamanho da janela */
         GameLib.setColor(Color.BLACK);
         GameLib.fillRect(0, 0, GameLib.WIDTH, GameLib.HEIGHT);
+
         /* desenha o fundo do jogo */
-        fundo.drawBackground();
-        fundo.drawForeground();
+        fundo.desenhaSegundoFundo();
+        fundo.desenhaPrimeiroFundo();
+
         /* desenha o jogador */
         jogador.draw();
+    
+        /* desenha o chefe */
+        if(spawnouChefe) chefe.draw();
+
         /* desenha os inimigos */
         for (EntidadeInimigo e : inimigos) e.draw();
+
         /* desenha os projéteis do inimigo */
         projeteisInimigos.drawProjeteisInimigo();
+        
         /* desenha os powerups */
         for (PowerUp p : powerUPs) p.draw();
-        
-        if(spawnouChefe) chefe.draw();
+    
         /* Apresenta o frame. */
         GameLib.display();
     }
